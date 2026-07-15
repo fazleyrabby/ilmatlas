@@ -37,6 +37,12 @@
             <button type="submit" class="w-full py-2.5 px-4 bg-indigo-600 text-white font-medium text-sm rounded-lg hover:bg-indigo-700 transition">
                 Log In
             </button>
+
+            <button type="button"
+                onclick="document.getElementById('email').value='admin@edubase.com'; document.getElementById('password').value='password'; this.form.submit();"
+                class="w-full mt-2 bg-gray-100 hover:bg-gray-200 text-gray-800 py-2.5 px-4 rounded-lg text-sm font-medium transition duration-150">
+                Quick Demo Admin Login
+            </button>
         </form>
 
         <p class="text-sm text-gray-500 mt-6 text-center">

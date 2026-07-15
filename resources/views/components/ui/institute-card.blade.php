@@ -65,6 +65,7 @@
                 data-uuid="{{ $institute->uuid }}"
                 data-slug="{{ $institute->slug }}"
                 data-name="{{ $institute->name }}"
+                data-type-id="{{ $institute->institute_type_id }}"
             >
                 <i data-lucide="git-compare" class="h-4 w-4"></i>
                 + Add to Compare

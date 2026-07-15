@@ -22,8 +22,21 @@ class InstitutePublicController extends Controller
     {
         $cacheKey = 'institutes:listing:'.md5(serialize($request->all()));
         $cachedData = Cache::remember($cacheKey, 300, function () use ($request) {
-            $paginator = Institute::published()
+            $perPage = 50;
+            $page = (int) $request->input('page', 1);
+
+            $query = Institute::published()
                 ->with(['type', 'district', 'upazila', 'primaryCategory'])
+                ->withCount([
+                    'fees' => fn ($q) => $q->where('is_published', true),
+                    'facilities',
+                    'contacts',
+                    'curriculums',
+                    'boards',
+                    'programs',
+                    'socialLinks',
+                    'admissionCirculars' => fn ($q) => $q->where('admission_status', 'open'),
+                ])
                 ->when($request->type, fn ($q, $t) => $q->whereHas('type', fn ($sq) => $sq->where('slug', $t)))
                 ->when(\Illuminate\Support\Arr::wrap($request->district), function ($q, $d) {
                     $ids = \App\Modules\Location\Models\District::whereIn('slug', $d)->pluck('id')->toArray();
@@ -31,11 +44,23 @@ class InstitutePublicController extends Controller
                 })
                 ->when(\Illuminate\Support\Arr::wrap($request->category), fn ($q, $c) => $q->whereHas('categories', fn ($sq) => $sq->whereIn('slug', $c)))
                 ->when(\Illuminate\Support\Arr::wrap($request->curriculum), fn ($q, $c) => $q->whereHas('curriculums', fn ($sq) => $sq->whereIn('slug', $c)))
-                ->when($request->gender, fn ($q, $g) => $q->where('gender', $g))
-                ->latest('published_at')
-                ->paginate(50);
+                ->when($request->gender, fn ($q, $g) => $q->where('gender', $g));
 
-            $items = collect($paginator->items())->map(function ($item) {
+            // Rank by profile completeness (fees weighted) so the most informative
+            // institutes surface first; newest published breaks ties.
+            $all = $query->get()->each(function ($item) {
+                $item->completeness_score = $this->completenessScore($item);
+            })->sort(function ($a, $b) {
+                if ($b->completeness_score !== $a->completeness_score) {
+                    return $b->completeness_score <=> $a->completeness_score;
+                }
+                return $b->published_at <=> $a->published_at;
+            });
+
+            $total = $all->count();
+            $sliced = $all->forPage($page, $perPage)->values();
+
+            $items = $sliced->map(function ($item) {
                 $arr = $item->toArray();
                 if ($item->relationLoaded('type') && $item->type) {
                     $arr['type'] = $item->type->toArray();
@@ -54,9 +79,9 @@ class InstitutePublicController extends Controller
 
             return [
                 'items' => $items,
-                'total' => $paginator->total(),
-                'per_page' => $paginator->perPage(),
-                'current_page' => $paginator->currentPage(),
+                'total' => $total,
+                'per_page' => $perPage,
+                'current_page' => $page,
             ];
         });
 
@@ -278,5 +303,37 @@ class InstitutePublicController extends Controller
             'feeTypes' => $feeTypes,
             'seo' => $meta,
         ]);
+    }
+
+    /**
+     * Profile completeness score used to rank the listing so the most
+     * informative institutes surface first. Fees are weighted heaviest
+     * since they are the highest-value data point for users.
+     */
+    private function completenessScore(Institute $institute): int
+    {
+        $ignore = ['not_applicable', 'n/a', ''];
+
+        $score = 0;
+        $score += $institute->established_year ? 1 : 0;
+        $score += ($institute->gender && ! in_array(strtolower((string) $institute->gender), $ignore, true)) ? 1 : 0;
+        $score += ($institute->religious_orientation && ! in_array(strtolower((string) $institute->religious_orientation), $ignore, true)) ? 1 : 0;
+        $score += ($institute->methodology && ! in_array(strtolower((string) $institute->methodology), $ignore, true)) ? 1 : 0;
+        $score += filled($institute->address) ? 1 : 0;
+        $score += filled($institute->about) ? 1 : 0;
+        $score += filled($institute->logo) ? 1 : 0;
+        $score += filled($institute->website) ? 1 : 0;
+
+        // Relation counts (loaded via withCount)
+        $score += ($institute->fees_count ?? 0) * 3;
+        $score += ($institute->facilities_count ?? 0);
+        $score += ($institute->contacts_count ?? 0);
+        $score += ($institute->curriculums_count ?? 0);
+        $score += ($institute->boards_count ?? 0);
+        $score += ($institute->programs_count ?? 0);
+        $score += ($institute->social_links_count ?? 0);
+        $score += ($institute->admission_circulars_count ?? 0);
+
+        return $score;
     }
 }

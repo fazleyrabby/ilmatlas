@@ -15,30 +15,42 @@ class ComparisonController extends Controller
         private ComparisonService $comparison,
     ) {}
 
-    public function show(Request $request, ?string $slugs = null): View
+    public function show(Request $request): View
     {
-        $matrix = null;
-        if ($slugs) {
-            $slugList = $this->comparison->parseSlug($slugs);
-            $institutes = Institute::published()->whereIn('slug', $slugList)->get();
+        $slugs = [];
+        for ($i = 1; $i <= 5; $i++) {
+            $s = $request->query('i' . $i);
+            if (is_string($s) && $s !== '') {
+                $slugs[] = $s;
+            }
+        }
 
-            if ($institutes->count() >= 2) {
-                $typeIds = $institutes->pluck('institute_type_id')->unique();
-                if ($typeIds->count() > 1) {
-                    abort(400, 'Mismatched institution types. You can only compare institutions of the same type.');
+        $institutes = Institute::published()->whereIn('slug', $slugs)->get();
+        $mismatch = false;
+        $matrix = null;
+
+        if ($institutes->count() >= 2) {
+            $typeIds = $institutes->pluck('institute_type_id')->unique();
+            if ($typeIds->count() > 1) {
+                $mismatch = true;
+            } else {
+                $uuids = $institutes->pluck('uuid')->toArray();
+                if ($request->boolean('refresh')) {
+                    $this->comparison->forgetComparison($uuids);
                 }
-                $matrix = $this->comparison->getComparison($institutes->pluck('uuid')->toArray());
+                $matrix = $this->comparison->getComparison($uuids);
             }
         }
 
         if (!$matrix) {
-            // Build an empty/dummy matrix structure to avoid breaking blade rendering
-            $matrix = new \App\Modules\Comparison\DTOs\ComparisonMatrix([], []);
+            // Seed columns with the attempted institutes (even on a type mismatch)
+            // so the page renders the selection and a friendly notice, not a 500.
+            $matrix = new \App\Modules\Comparison\DTOs\ComparisonMatrix($institutes->all(), []);
         }
 
         return view('public.compare.index', [
             'matrix' => $matrix,
-            'slug' => $slugs ?? '',
+            'mismatch' => $mismatch,
         ]);
     }
 
@@ -61,7 +73,14 @@ class ComparisonController extends Controller
 
         $typeIds = $institutes->pluck('institute_type_id')->unique();
         if ($typeIds->count() > 1) {
-            return response()->json(['error' => 'Mismatched institution types. You can only compare institutions of the same type.'], 422);
+            return response()->json([
+                'error' => 'Mismatched institution types. You can only compare institutions of the same type.',
+                'mismatch' => true,
+            ], 422);
+        }
+
+        if ($request->boolean('refresh')) {
+            $this->comparison->forgetComparison($uuids);
         }
 
         $matrix = $this->comparison->getComparison($uuids);
@@ -72,6 +91,7 @@ class ComparisonController extends Controller
                 'slug' => $i->slug,
                 'uuid' => $i->uuid,
                 'logo_url' => $i->logo_url,
+                'type_id' => $i->institute_type_id,
             ], $matrix->institutes),
             'groups' => array_map(fn ($g) => [
                 'name' => $g->name,

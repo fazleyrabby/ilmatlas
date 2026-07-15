@@ -11,6 +11,7 @@ Alpine.plugin(collapse);
 Alpine.start();
 
 window.TomSelect = TomSelect;
+window.refreshIcons = renderIcons;
 
 function initTomSelect() {
     document.querySelectorAll('select[multiple]:not(.ts-ready):not(#district-filter), select[data-tomselect]:not(.ts-ready)').forEach((el) => {

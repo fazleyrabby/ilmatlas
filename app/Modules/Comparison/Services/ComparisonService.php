@@ -31,8 +31,9 @@ class ComparisonService
 
     public function getComparison(array $uuids): ComparisonMatrix
     {
-        sort($uuids);
-        $hash = hash('sha256', implode(',', $uuids));
+        $keyUuids = $uuids;
+        sort($keyUuids);
+        $hash = hash('sha256', implode(',', $keyUuids));
         $cacheKey = "comparison:{$hash}:matrix";
 
         return Cache::remember($cacheKey, 86400, function () use ($uuids) {
@@ -57,16 +58,19 @@ class ComparisonService
         });
     }
 
+    public function forgetComparison(array $uuids): void
+    {
+        $keyUuids = $uuids;
+        sort($keyUuids);
+        $hash = hash('sha256', implode(',', $keyUuids));
+        Cache::forget("comparison:{$hash}:matrix");
+    }
+
     public function generateComparisonSlug(array $institutes): string
     {
         $slugs = array_map(fn ($i) => $i->slug, $institutes);
 
         return implode('-vs-', $slugs);
-    }
-
-    public function parseSlug(string $slug): array
-    {
-        return explode('-vs-', $slug);
     }
 
     private function buildGeneralGroup(array $institutes): ?ComparisonGroup

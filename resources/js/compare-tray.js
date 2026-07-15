@@ -16,9 +16,12 @@ function setStored(items) {
 }
 
 function navigateCompare(items) {
-    const slugs = items.map(i => i.slug).filter(Boolean).join('-vs-');
-    if (items.length >= 2) {
-        window.location.href = `/compare/${slugs}`;
+    const valid = items.filter(i => i.slug);
+    if (valid.length >= 2) {
+        const params = new URLSearchParams();
+        valid.forEach((item, idx) => params.set('i' + (idx + 1), item.slug));
+        // refresh=1 forces the server to clear + rebuild the comparison cache
+        window.location.href = '/compare?' + params.toString() + '&refresh=1';
     } else {
         window.location.href = '/institutes';
     }
@@ -53,8 +56,9 @@ function renderTray() {
     btn.disabled = items.length < 2;
 
     if (items.length >= 2) {
-        const slugs = items.map(i => i.slug).join('-vs-');
-        btn.onclick = () => { window.location.href = `/compare/${slugs}`; };
+        const params = new URLSearchParams();
+        items.forEach((item, idx) => params.set('i' + (idx + 1), item.slug));
+        btn.onclick = () => { window.location.href = '/compare?' + params.toString(); };
     }
 }
 
@@ -70,18 +74,63 @@ function updateCompareIndicator() {
     });
 }
 
-window.compareAdd = function (uuid, slug, name) {
+function showToast(message, type = 'error') {
+    let container = document.getElementById('toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'toast-container';
+        container.className = 'fixed top-4 left-1/2 z-[100] flex -translate-x-1/2 flex-col gap-2';
+        document.body.appendChild(container);
+    }
+    const toast = document.createElement('div');
+    const palette = {
+        error: 'bg-red-600 text-white',
+        success: 'bg-emerald-600 text-white',
+        info: 'bg-gray-800 text-white',
+    };
+    toast.className = `pointer-events-auto rounded-md px-4 py-2.5 text-sm font-medium shadow-lg ${palette[type] || palette.info}`;
+    toast.textContent = message;
+    container.appendChild(toast);
+    setTimeout(() => {
+        toast.style.transition = 'opacity 300ms ease';
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 300);
+    }, 3200);
+}
+
+window.compareAdd = function (uuid, slug, name, typeId) {
     let items = getStored();
     if (items.length >= MAX_ITEMS) {
-        alert('Maximum ' + MAX_ITEMS + ' institutes can be compared.');
+        showToast('Maximum ' + MAX_ITEMS + ' institutes can be compared.');
         return;
     }
     if (items.find(i => i.uuid === uuid)) {
-        alert('Institute already in comparison.');
+        showToast('Institute already in comparison.');
         return;
     }
-    items.push({ uuid, slug, name });
+    // Smart guard: only allow comparing institutes of the same type
+    const existingType = items.find(i => i.typeId)?.typeId;
+    if (existingType && typeId && String(existingType) !== String(typeId)) {
+        showToast('You can only compare institutes of the same type. Please choose a similar type.');
+        return;
+    }
+    items.push({ uuid, slug, name, typeId: typeId || null });
     setStored(items);
+
+    const isOnComparePage = window.location.pathname === '/compare';
+    if (isOnComparePage && items.length >= 2) {
+        // Mirror the addition onto the compare page (it reloads + rebuilds cache)
+        navigateCompare(items);
+    } else {
+        renderTray();
+        updateButtonStates();
+    }
+};
+
+// Set the tray to exactly the given items and re-render, WITHOUT navigating.
+// Used by the compare page so the bottom bar mirrors its current columns.
+window.syncTray = function (itemList) {
+    setStored((itemList || []).filter(i => i && i.uuid));
     renderTray();
     updateButtonStates();
 };
@@ -90,7 +139,7 @@ window.compareRemove = function (uuid) {
     let items = getStored().filter(i => i.uuid !== uuid);
     setStored(items);
 
-    const isOnComparePage = window.location.pathname.startsWith('/compare/');
+    const isOnComparePage = window.location.pathname === '/compare';
     if (isOnComparePage) {
         navigateCompare(items);
     } else {
@@ -101,7 +150,7 @@ window.compareRemove = function (uuid) {
 
 window.compareClear = function () {
     setStored([]);
-    const isOnComparePage = window.location.pathname.startsWith('/compare/');
+    const isOnComparePage = window.location.pathname === '/compare';
     if (isOnComparePage) {
         window.location.href = '/institutes';
     } else {
@@ -141,6 +190,7 @@ document.addEventListener('click', (e) => {
     const uuid = btn.dataset.uuid;
     const slug = btn.dataset.slug;
     const name = btn.dataset.name;
+    const typeId = btn.dataset.typeId;
 
     if (!uuid) return;
 
@@ -150,7 +200,7 @@ document.addEventListener('click', (e) => {
     if (existing !== -1) {
         compareRemove(uuid);
     } else {
-        compareAdd(uuid, slug, name);
+        compareAdd(uuid, slug, name, typeId);
     }
 });
 
@@ -180,7 +230,9 @@ document.addEventListener('click', (e) => {
         e.preventDefault();
         const items = getStored();
         if (items.length >= 2) {
-            window.location.href = `/compare/${items.map(i => i.slug).join('-vs-')}`;
+            const params = new URLSearchParams();
+            items.forEach((item, idx) => params.set('i' + (idx + 1), item.slug));
+            window.location.href = '/compare?' + params.toString();
         } else {
             const tray = document.getElementById('compareTray');
             if (tray && items.length > 0) {

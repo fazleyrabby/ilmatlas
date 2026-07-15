@@ -45,9 +45,25 @@
     border: 1px solid #d1d5db !important;
     font-weight: 500 !important;
     text-align: left;
-    height: 38px;
+    height: auto;
     min-height: 38px;
     padding: 0.35rem 0.5rem;
+    /* Allow long institute names to wrap instead of truncating */
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    word-break: break-word;
+    line-height: 1.25;
+}
+.compare-header-select .ts-control .item {
+    white-space: normal;
+    word-break: break-word;
+    overflow: visible;
+}
+/* Keep the Tom Select wrapper below the column remove button */
+.compare-header-select .ts-wrapper {
+    position: relative;
+    z-index: 1;
 }
 .compare-header-select .ts-dropdown {
     text-align: left;
@@ -75,19 +91,18 @@
         </div>
     </div>
 
+    <template x-if="errorMessage">
+        <div class="mb-6 rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800" role="alert" x-text="errorMessage"></div>
+    </template>
+
     <div class="card overflow-hidden relative" x-show="cols.length > 0">
-        <button x-show="cols.length > 2" @click="removeLast()"
-                class="absolute bottom-4 left-4 z-20 flex h-11 w-11 items-center justify-center rounded-full bg-gray-600 text-white shadow-lg transition hover:bg-gray-700"
-                title="Remove last column (min 2)">
-            <i data-lucide="minus" class="h-5 w-5"></i>
-        </button>
         <div class="overflow-x-auto">
             <table class="eb-table w-full text-sm">
                 <thead>
                     <tr>
                         <th colspan="2" class="sticky left-0 z-10 bg-surface-muted min-w-[200px]"></th>
                         <template x-for="(col, colIdx) in cols" :key="col.key">
-                            <th class="relative min-w-[240px] p-3 pr-9 text-center bg-surface">
+                            <th class="relative min-w-[240px] p-3 pr-9 text-center align-top whitespace-normal bg-surface">
                                 <div class="compare-header-select" :id="'select-wrapper-' + col.key" x-init="$nextTick(() => initTomSelect(col.key, colIdx))">
                                     <select :id="'select-' + col.key" class="tom-select-compare">
                                         <option value=""></option>
@@ -97,7 +112,8 @@
                                     </select>
                                 </div>
                                 <button @click="removeColumn(colIdx)"
-                                        class="compare-remove absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-gray-100 text-gray-500 transition-colors hover:bg-red-100 hover:text-red-600"
+                                        x-show="cols.length > 1"
+                                        class="compare-remove absolute right-2 top-2 z-30 flex h-6 w-6 items-center justify-center rounded-full bg-gray-100 text-gray-500 transition-colors hover:bg-red-100 hover:text-red-600"
                                         title="Remove column" aria-label="Remove"><i data-lucide="x" style="width:0.85rem;height:0.85rem;stroke-width:3"></i></button>
                             </th>
                         </template>
@@ -106,8 +122,8 @@
                 <template x-for="group in groups" :key="group.slug">
                     <tbody x-show="getVisibleCount(group.slug) > 0">
                         <template x-for="(row, rowIdx) in group.rows" :key="row.slug">
-                            <tr class="compare-row bg-white hover:bg-gray-50 transition-colors"
-                                x-show="!(hideIdentical && row.all_identical)">
+                                <tr class="compare-row bg-white hover:bg-gray-50 transition-colors"
+                                    x-show="rowIsVisible(group, row)">
                                 
                                 <template x-if="isFirstVisible(group.slug, rowIdx)">
                                     <th class="group-header-cell sticky left-0 z-10" :rowspan="getVisibleCount(group.slug)" x-text="group.name"></th>
@@ -136,6 +152,8 @@ function compareView() {
         cols: [],
         groups: [],
         tsInstances: {},
+        prevUuids: '',
+        errorMessage: @json($mismatch ? 'You can only compare institutes of the same type. Please choose institutes of the same type.' : ''),
 
         initCompare() {
             // Initial data parsed from blade if loaded with pre-selected institutes
@@ -167,6 +185,12 @@ function compareView() {
                     institute: null
                 });
             }
+
+            // Track the current set so we can bust the cache when it changes
+            this.prevUuids = this.cols.filter(c => c.uuid).map(c => c.uuid).join(',');
+
+            // Mirror the initially-selected institutes into the bottom tray
+            this.syncTray();
         },
 
         initTomSelect(key, index) {
@@ -214,27 +238,48 @@ function compareView() {
             const col = this.cols[index];
             if (!col) return;
 
-            col.uuid = uuid || null;
+            const prev = { uuid: col.uuid, slug: col.slug, institute: col.institute };
+
+            if (!uuid) {
+                col.uuid = null;
+                col.slug = null;
+                col.institute = null;
+                this.errorMessage = '';
+                this.recalculateMatrix();
+                return;
+            }
+            if (uuid === prev.uuid) return;
+
+            col.uuid = uuid;
             col.slug = null;
             col.institute = null;
-            this.recalculateMatrix();
+            this.errorMessage = '';
+            this.recalculateMatrix({ index, prev });
         },
 
-        recalculateMatrix() {
+        recalculateMatrix(revert = null) {
             const uuids = this.cols.map(c => c.uuid).filter(Boolean);
-            
+            const setKey = uuids.join(',');
+            const changed = setKey !== this.prevUuids;
+
             // Update URL dynamically
             this.updateUrl();
 
             if (uuids.length < 2) {
                 // Not enough items, leave groups as is or empty them
                 this.groups = [];
+                this.prevUuids = setKey;
+                this.syncTray();
                 return;
             }
 
-            fetch('/api/v1/compare?ids=' + uuids.join(','))
+            // When the set changed, force a cache rebuild (old entry is cleared,
+            // a fresh one is created for the new institute set).
+            const apiUrl = '/api/v1/compare?ids=' + uuids.join(',') + (changed ? '&refresh=1' : '');
+
+            fetch(apiUrl)
                 .then(res => {
-                    if (!res.ok) throw new Error();
+                    if (!res.ok) return res.json().then(j => Promise.reject(j));
                     return res.json();
                 })
                 .then(json => {
@@ -250,20 +295,77 @@ function compareView() {
                     });
                     this.groups = json.groups;
                     this.updateUrl();
+                    this.prevUuids = setKey;
+                    this.errorMessage = '';
+                    this.syncTray();
                 })
-                .catch(() => {
-                    // Mismatched types etc.
+                .catch(err => {
+                    if (revert && err && err.mismatch) {
+                        // Revert the offending column to its prior institute
+                        const col = this.cols[revert.index];
+                        if (col) {
+                            col.uuid = revert.prev.uuid;
+                            col.slug = revert.prev.slug;
+                            col.institute = revert.prev.institute;
+                            if (this.tsInstances[col.key]) {
+                                this.tsInstances[col.key].setValue(revert.prev.uuid || '', true);
+                            }
+                        }
+                        this.errorMessage = err.error || 'Those institutions cannot be compared.';
+                        // Rebuild with the now-valid (reverted) set
+                        const ruuids = this.cols.map(c => c.uuid).filter(Boolean);
+                        const rkey = ruuids.join(',');
+                        this.updateUrl();
+                        if (ruuids.length >= 2) {
+                            fetch('/api/v1/compare?ids=' + ruuids.join(',') + (rkey !== this.prevUuids ? '&refresh=1' : ''))
+                                .then(res => res.ok ? res.json() : Promise.reject())
+                                .then(json => {
+                                    this.cols.forEach(c => {
+                                        if (c.uuid) {
+                                            const f = json.institutes.find(i => i.uuid === c.uuid);
+                                            if (f) { c.institute = f; c.slug = f.slug; }
+                                        }
+                                    });
+                                    this.groups = json.groups;
+                                    this.prevUuids = rkey;
+                                    this.syncTray();
+                                })
+                                .catch(() => {});
+                        } else {
+                            this.groups = [];
+                            this.prevUuids = rkey;
+                            this.syncTray();
+                        }
+                    } else {
+                        this.errorMessage = (err && err.error) ? err.error : 'Could not load the comparison.';
+                    }
                 });
         },
 
         updateUrl() {
-            const slugs = this.cols.map(c => c.slug).filter(Boolean);
-            if (slugs.length >= 2) {
-                const newUrl = '/compare/' + slugs.join('-vs-');
-                window.history.replaceState(null, '', newUrl);
+            const items = this.cols.filter(c => c.slug).map(c => c.slug);
+            if (items.length >= 2) {
+                const params = new URLSearchParams();
+                items.forEach((slug, idx) => params.set('i' + (idx + 1), slug));
+                window.history.replaceState(null, '', '/compare?' + params.toString());
             } else {
                 window.history.replaceState(null, '', '/compare');
             }
+        },
+
+        // Mirror the current columns into the bottom compare tray so the two
+        // stay in sync (the tray is the source of truth elsewhere).
+        syncTray() {
+            if (typeof window.syncTray !== 'function') return;
+            const items = this.cols
+                .filter(c => c.institute && c.uuid)
+                .map(c => ({
+                    uuid: c.uuid,
+                    slug: c.slug,
+                    name: c.institute.name,
+                    typeId: c.institute.institute_type_id ?? c.institute.type_id ?? null,
+                }));
+            window.syncTray(items);
         },
 
         addColumn() {
@@ -275,6 +377,13 @@ function compareView() {
                 slug: null,
                 institute: null
             });
+            this.refreshIcons();
+        },
+
+        refreshIcons() {
+            if (typeof window.refreshIcons === 'function') {
+                this.$nextTick(() => window.refreshIcons());
+            }
         },
 
         removeColumn(index) {
@@ -284,17 +393,6 @@ function compareView() {
                 delete this.tsInstances[col.key];
             }
             this.cols.splice(index, 1);
-            this.recalculateMatrix();
-        },
-
-        removeLast() {
-            if (this.cols.length <= 2) return;
-            const col = this.cols[this.cols.length - 1];
-            if (col && this.tsInstances[col.key]) {
-                this.tsInstances[col.key].destroy();
-                delete this.tsInstances[col.key];
-            }
-            this.cols.pop();
             this.recalculateMatrix();
         },
 
@@ -312,23 +410,28 @@ function compareView() {
             return row.values[instIndex] !== undefined ? row.values[instIndex] : '—';
         },
 
+        rowIsVisible(group, row) {
+            if (!this.hideIdentical) return true;
+            const visibleDiff = group.rows.filter(r => !r.all_identical).length;
+            // If the entire group matches, always show its rows so the table is
+            // never blank when at least 2 institutes are compared.
+            if (visibleDiff === 0) return true;
+            return !row.all_identical;
+        },
+
         getVisibleCount(groupSlug) {
             const group = this.groups.find(g => g.slug === groupSlug);
             if (!group) return 0;
-            if (!this.hideIdentical) return group.rows.length;
-            return group.rows.filter(r => !r.all_identical).length;
+            return group.rows.filter(r => this.rowIsVisible(group, r)).length;
         },
 
         isFirstVisible(groupSlug, rowIndex) {
             const group = this.groups.find(g => g.slug === groupSlug);
             if (!group) return false;
-            
-            let visibleRows = [];
-            group.rows.forEach((r, idx) => {
-                if (!(this.hideIdentical && r.all_identical)) {
-                    visibleRows.push(idx);
-                }
-            });
+
+            const visibleRows = group.rows
+                .map((r, idx) => this.rowIsVisible(group, r) ? idx : -1)
+                .filter(idx => idx !== -1);
             return visibleRows[0] === rowIndex;
         },
 

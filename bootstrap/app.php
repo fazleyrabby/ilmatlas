@@ -16,15 +16,14 @@ return Application::configure(basePath: dirname(__DIR__))
             foreach (glob(base_path('app/Modules/*/Routes/*.php')) as $file) {
                 require $file;
             }
-            foreach (glob(base_path('app/Modules/*/Routes/admin.php')) as $file) {
-                require $file;
-            }
         },
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'admin' => AdminAccess::class,
         ]);
+
+        $middleware->redirectGuestsTo('/admin/login');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

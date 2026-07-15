@@ -32,21 +32,32 @@
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         @forelse($institutes as $institute)
-            <a href="{{ route('institutes.show', $institute) }}" class="block bg-white rounded-xl border border-gray-200 p-6 hover:shadow-md transition-shadow">
-                <div class="flex items-start gap-4">
-                    <div class="w-12 h-12 rounded-lg bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-lg flex-shrink-0">
-                        {{ substr($institute->name, 0, 1) }}
+            <div class="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-md transition-shadow">
+                <a href="{{ route('institutes.show', $institute) }}">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 rounded-lg bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-lg flex-shrink-0">
+                            {{ substr($institute->name, 0, 1) }}
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h2 class="font-semibold text-gray-900 truncate">{{ $institute->name }}</h2>
+                            <p class="text-sm text-gray-500">{{ $institute->type?->name }} &middot; {{ $institute->district?->name }}</p>
+                        </div>
                     </div>
-                    <div class="flex-1 min-w-0">
-                        <h2 class="font-semibold text-gray-900 truncate">{{ $institute->name }}</h2>
-                        <p class="text-sm text-gray-500">{{ $institute->type?->name }} &middot; {{ $institute->district?->name }}</p>
+                    <div class="mt-4 flex items-center justify-between text-sm">
+                        <span class="text-gray-500">{{ $institute->upazila?->name }}</span>
+                        <span class="font-medium text-gray-900">{{ number_format($institute->estimated_monthly_fee, 0) }} BDT</span>
                     </div>
+                </a>
+                <div class="mt-3 pt-3 border-t border-gray-100">
+                    <button
+                        onclick="event.preventDefault(); compareAdd('{{ $institute->uuid }}', '{{ $institute->slug }}', '{{ addslashes($institute->name) }}')"
+                        class="w-full text-center text-sm text-indigo-600 hover:text-indigo-800 font-medium compare-btn"
+                        data-uuid="{{ $institute->uuid }}"
+                    >
+                        + Add to Compare
+                    </button>
                 </div>
-                <div class="mt-4 flex items-center justify-between text-sm">
-                    <span class="text-gray-500">{{ $institute->upazila?->name }}</span>
-                    <span class="font-medium text-gray-900">{{ number_format($institute->estimated_monthly_fee, 0) }} BDT</span>
-                </div>
-            </a>
+            </div>
         @empty
             <div class="col-span-full text-center py-12 text-gray-500">
                 No institutes found matching your criteria.

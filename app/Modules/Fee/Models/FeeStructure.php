@@ -2,7 +2,10 @@
 
 namespace App\Modules\Fee\Models;
 
+use App\Modules\Institute\Models\Institute;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class FeeStructure extends Model
@@ -28,5 +31,20 @@ class FeeStructure extends Model
             'published_at' => 'datetime',
             'verified_at' => 'datetime',
         ];
+    }
+
+    public function institute(): BelongsTo
+    {
+        return $this->belongsTo(Institute::class);
+    }
+
+    public function feeType(): BelongsTo
+    {
+        return $this->belongsTo(FeeType::class);
+    }
+
+    public function histories(): HasMany
+    {
+        return $this->hasMany(FeeHistory::class);
     }
 }

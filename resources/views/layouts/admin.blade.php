@@ -23,6 +23,12 @@
                 <a href="{{ route('admin.taxonomies.index') }}" class="block px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100">
                     Taxonomies
                 </a>
+                <a href="{{ route('admin.fees.index') }}" class="block px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100">
+                    Fees
+                </a>
+                <a href="{{ route('admin.admissions.index') }}" class="block px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100">
+                    Admissions
+                </a>
                 <form method="POST" action="{{ route('admin.logout') }}" class="pt-4 border-t border-gray-200">
                     @csrf
                     <button type="submit" class="w-full px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg">

@@ -26,6 +26,15 @@
                         <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">{{ ucfirst($institute->religious_orientation) }}</span>
                     @endif
                 </div>
+                <div class="mt-4">
+                    <button
+                        onclick="compareAdd('{{ $institute->uuid }}', '{{ $institute->slug }}', '{{ addslashes($institute->name) }}')"
+                        class="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-indigo-700 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition-colors compare-btn"
+                        data-uuid="{{ $institute->uuid }}"
+                    >
+                        + Add to Compare
+                    </button>
+                </div>
             </div>
         </div>
     </div>

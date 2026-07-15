@@ -2,7 +2,9 @@
 
 namespace App\Modules\Admission\Models;
 
+use App\Modules\Institute\Models\Institute;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class AdmissionCircular extends Model
@@ -32,5 +34,15 @@ class AdmissionCircular extends Model
             'is_published' => 'boolean',
             'published_at' => 'datetime',
         ];
+    }
+
+    public function institute(): BelongsTo
+    {
+        return $this->belongsTo(Institute::class);
+    }
+
+    public function session(): BelongsTo
+    {
+        return $this->belongsTo(AdmissionSession::class, 'admission_session_id');
     }
 }

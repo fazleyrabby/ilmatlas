@@ -16,7 +16,7 @@ use Illuminate\View\View;
 
 class InstitutePublicController extends Controller
 {
-    public function index(Request $request): View
+    public function index(Request $request, SeoService $seo): View
     {
         $cacheKey = 'institutes:listing:'.md5(serialize($request->all()));
         $institutes = Cache::remember($cacheKey, 300, function () use ($request) {
@@ -40,7 +40,15 @@ class InstitutePublicController extends Controller
         $categories = Cache::remember('taxonomy:categories:active', 86400, fn () => Category::where('is_active', true)->get());
         $curriculums = Cache::remember('taxonomy:curriculums:active', 86400, fn () => Curriculum::where('is_active', true)->get());
 
-        return view('public.institutes.index', compact('institutes', 'types', 'categories', 'curriculums'));
+        $meta = $seo->forLocation('Institute', 'All', $institutes->total(), 'educational institutes');
+
+        return view('public.institutes.index', [
+            'institutes' => $institutes,
+            'types' => $types,
+            'categories' => $categories,
+            'curriculums' => $curriculums,
+            'seo' => $meta,
+        ]);
     }
 
     public function byType(InstituteType $type, Request $request, SeoService $seo): View

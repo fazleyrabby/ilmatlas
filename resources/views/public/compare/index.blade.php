@@ -81,11 +81,6 @@
                 title="Remove last column (min 2)">
             <i data-lucide="minus" class="h-5 w-5"></i>
         </button>
-        <button x-show="cols.length < 5" @click="addColumn()"
-                class="absolute bottom-4 right-4 z-20 flex h-11 w-11 items-center justify-center rounded-full bg-primary-600 text-white shadow-lg transition hover:bg-primary-700"
-                title="Add column (max 5)">
-            <i data-lucide="plus" class="h-5 w-5"></i>
-        </button>
         <div class="overflow-x-auto">
             <table class="eb-table w-full text-sm">
                 <thead>
@@ -147,7 +142,11 @@ function compareView() {
             const initialInstitutes = @json($matrix->institutes ?? []);
             const initialGroups = @json($matrix->groups ?? []);
 
-            this.groups = initialGroups;
+            // Normalize all_identical key (DTO serializes as camelCase, API returns snake_case)
+            this.groups = initialGroups.map(g => ({
+                ...g,
+                rows: (g.rows || []).map(r => ({ ...r, all_identical: r.all_identical ?? r.allIdentical ?? false }))
+            }));
 
             // Seed columns
             if (initialInstitutes.length > 0) {
@@ -215,20 +214,10 @@ function compareView() {
             const col = this.cols[index];
             if (!col) return;
 
-            if (!uuid) {
-                col.uuid = null;
-                col.slug = null;
-                col.institute = null;
-                this.recalculateMatrix();
-                return;
-            }
-
-            // Fetch this institute options
-            fetch('/api/v1/search/autocomplete?q=')
-                .then(() => {
-                    col.uuid = uuid;
-                    this.recalculateMatrix();
-                });
+            col.uuid = uuid || null;
+            col.slug = null;
+            col.institute = null;
+            this.recalculateMatrix();
         },
 
         recalculateMatrix() {

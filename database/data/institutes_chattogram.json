@@ -1,0 +1,337 @@
+[
+  {
+    "name": "Chittagong Collegiate School",
+    "short_name": "CCS",
+    "institute_code": "104454",
+    "type": "school",
+    "category": "government",
+    "curriculum": "national-curriculum-bangladesh",
+    "board": "chattogram-board",
+    "gender": "boys",
+    "religious_orientation": "not_applicable",
+    "established_year": 1836,
+    "division": "Chattogram",
+    "district": "Chattogram",
+    "upazila": "Kotwali",
+    "full_address": "Ice Factory Road, Kotwali, Chattogram",
+    "latitude": 22.3352,
+    "longitude": 91.8323,
+    "source_url": "http://www.collegiateschool.edu.bd/",
+    "verification_status": "estimated",
+    "programs": ["class-6", "class-7", "class-8", "class-9", "class-10-ssc"],
+    "facilities": ["library", "computer-lab", "science-lab", "playground", "canteen"],
+    "contacts": [
+      { "type": "phone", "value": "+88031614050" },
+      { "type": "email", "value": "info@collegiateschool.edu.bd" }
+    ],
+    "fees": {
+      "monthly-tuition": { "amount": 200, "frequency": "monthly" },
+      "admission-fee": { "amount": 1500, "frequency": "one_time" },
+      "session-fee": { "amount": 2000, "frequency": "yearly" }
+    }
+  },
+  {
+    "name": "Dr. Khastagir Government Girls' High School",
+    "short_name": "DKGGHS",
+    "institute_code": "104481",
+    "type": "school",
+    "category": "government",
+    "curriculum": "national-curriculum-bangladesh",
+    "board": "chattogram-board",
+    "gender": "girls",
+    "religious_orientation": "not_applicable",
+    "established_year": 1907,
+    "division": "Chattogram",
+    "district": "Chattogram",
+    "upazila": "Kotwali",
+    "full_address": "Jamal Khan Road, Kotwali, Chattogram",
+    "latitude": 22.3486,
+    "longitude": 91.8373,
+    "source_url": "http://www.khastagirschool.edu.bd/",
+    "verification_status": "estimated",
+    "programs": ["class-5", "class-6", "class-7", "class-8", "class-9", "class-10-ssc"],
+    "facilities": ["library", "computer-lab", "science-lab", "playground", "first-aid-room", "cctv"],
+    "contacts": [
+      { "type": "phone", "value": "+88031612080" },
+      { "type": "email", "value": "info@khastagirschool.edu.bd" }
+    ],
+    "fees": {
+      "monthly-tuition": { "amount": 150, "frequency": "monthly" },
+      "admission-fee": { "amount": 1200, "frequency": "one_time" },
+      "session-fee": { "amount": 1800, "frequency": "yearly" }
+    }
+  },
+  {
+    "name": "Chittagong Grammar School",
+    "short_name": "CGS",
+    "institute_code": "134212",
+    "type": "school",
+    "category": "english-medium",
+    "curriculum": "cambridge-international",
+    "board": "chattogram-board",
+    "gender": "co_educational",
+    "religious_orientation": "not_applicable",
+    "established_year": 1992,
+    "division": "Chattogram",
+    "district": "Chattogram",
+    "upazila": "Khulshi",
+    "full_address": "CGS Building, Khulshi, Chattogram",
+    "latitude": 22.3592,
+    "longitude": 91.8211,
+    "source_url": "http://www.chittagonggrammarschool.com/",
+    "verification_status": "estimated",
+    "programs": ["playgroup", "nursery", "class-1", "class-5", "class-9", "class-10-ssc"],
+    "facilities": ["library", "computer-lab", "science-lab", "playground", "swimming-pool", "canteen", "cctv"],
+    "contacts": [
+      { "type": "phone", "value": "+88031656754" },
+      { "type": "email", "value": "info@cgs.edu.bd" }
+    ],
+    "fees": {
+      "monthly-tuition": { "amount": 18000, "frequency": "monthly" },
+      "admission-fee": { "amount": 45000, "frequency": "one_time" },
+      "session-fee": { "amount": 25000, "frequency": "yearly" }
+    }
+  },
+  {
+    "name": "Sunshine Grammar School",
+    "short_name": "SGS",
+    "institute_code": "104523",
+    "type": "school",
+    "category": "english-medium",
+    "curriculum": "ib-diploma-programme",
+    "board": "chattogram-board",
+    "gender": "co_educational",
+    "religious_orientation": "not_applicable",
+    "established_year": 1985,
+    "division": "Chattogram",
+    "district": "Chattogram",
+    "upazila": "Panchlaish",
+    "full_address": "Sunshine Campus, Nasirabad, Panchlaish, Chattogram",
+    "latitude": 22.3644,
+    "longitude": 91.8256,
+    "source_url": "http://www.sunshinegrammar.edu.bd/",
+    "verification_status": "estimated",
+    "programs": ["class-1", "class-5", "class-9", "class-10-ssc", "class-11", "class-12-hsc"],
+    "facilities": ["library", "computer-lab", "science-lab", "playground", "auditorium"],
+    "contacts": [
+      { "type": "phone", "value": "+88031654321" }
+    ],
+    "fees": {
+      "monthly-tuition": { "amount": 15000, "frequency": "monthly" },
+      "admission-fee": { "amount": 30000, "frequency": "one_time" },
+      "session-fee": { "amount": 12000, "frequency": "yearly" }
+    }
+  },
+  {
+    "name": "Ispahani Public School & College",
+    "short_name": "IPSC",
+    "institute_code": "104494",
+    "type": "school",
+    "category": "english-version",
+    "curriculum": "national-curriculum-bangladesh",
+    "board": "chattogram-board",
+    "gender": "co_educational",
+    "religious_orientation": "not_applicable",
+    "established_year": 1962,
+    "division": "Chattogram",
+    "district": "Chattogram",
+    "upazila": "Khulshi",
+    "full_address": "Zakaria Road, Cantonment Area, Khulshi, Chattogram",
+    "latitude": 22.3815,
+    "longitude": 91.8124,
+    "source_url": "http://www.ipsc.edu.bd/",
+    "verification_status": "estimated",
+    "programs": ["class-1", "class-5", "class-6", "class-9", "class-10-ssc", "class-11", "class-12-hsc"],
+    "facilities": ["library", "computer-lab", "science-lab", "playground", "auditorium", "canteen"],
+    "contacts": [
+      { "type": "phone", "value": "+88031681729" },
+      { "type": "email", "value": "ispahanipublic@yahoo.com" }
+    ],
+    "fees": {
+      "monthly-tuition": { "amount": 2500, "frequency": "monthly" },
+      "admission-fee": { "amount": 8000, "frequency": "one_time" },
+      "session-fee": { "amount": 6000, "frequency": "yearly" }
+    }
+  },
+  {
+    "name": "Jamiatul Falah Kamil Madrasa",
+    "short_name": "Jamiatul Falah",
+    "institute_code": "104278",
+    "type": "madrasa",
+    "category": "alia-madrasa",
+    "curriculum": "alia-madrasa-curriculum",
+    "board": "madrasah-board",
+    "gender": "boys",
+    "religious_orientation": "islamic",
+    "established_year": 1980,
+    "division": "Chattogram",
+    "district": "Chattogram",
+    "upazila": "Kotwali",
+    "full_address": "Dampara, Wasa Circle, Kotwali, Chattogram",
+    "latitude": 22.3468,
+    "longitude": 91.8285,
+    "source_url": "http://www.jamiatulfalah.edu.bd/",
+    "verification_status": "estimated",
+    "programs": ["ebtedayee", "mutawassitah", "dakhil", "alim", "fazil", "kamil"],
+    "facilities": ["library", "computer-lab", "playground", "smart-classroom", "cctv"],
+    "contacts": [
+      { "type": "phone", "value": "+88031632850" }
+    ],
+    "fees": {
+      "monthly-tuition": { "amount": 400, "frequency": "monthly" },
+      "admission-fee": { "amount": 2000, "frequency": "one_time" },
+      "session-fee": { "amount": 2500, "frequency": "yearly" }
+    }
+  },
+  {
+    "name": "Al Jamia Al Islamia Patiya",
+    "short_name": "Patiya Jamia",
+    "institute_code": "199401",
+    "type": "madrasa",
+    "category": "qawmi-madrasa",
+    "curriculum": "dawra-e-hadith-qawmi",
+    "board": "madrasah-board",
+    "gender": "boys",
+    "religious_orientation": "islamic",
+    "established_year": 1938,
+    "division": "Chattogram",
+    "district": "Chattogram",
+    "upazila": "Patiya Sadar",
+    "full_address": "Patiya Highway, Patiya, Chattogram",
+    "latitude": 22.2985,
+    "longitude": 91.9772,
+    "source_url": "http://www.patiajamiah.org/",
+    "verification_status": "estimated",
+    "programs": ["ebtedayee", "mutawassitah", "hifzul-quran", "nazera"],
+    "facilities": ["library", "boundary-wall", "canteen"],
+    "contacts": [
+      { "type": "phone", "value": "+8801711111111" }
+    ],
+    "fees": {
+      "monthly-tuition": { "amount": 0, "frequency": "monthly" },
+      "admission-fee": { "amount": 200, "frequency": "one_time" }
+    }
+  },
+  {
+    "name": "Faujdarhat Cadet College",
+    "short_name": "FCC",
+    "institute_code": "104355",
+    "type": "cadet-college",
+    "category": "cadet",
+    "curriculum": "national-curriculum-bangladesh",
+    "board": "chattogram-board",
+    "gender": "boys",
+    "religious_orientation": "not_applicable",
+    "established_year": 1958,
+    "division": "Chattogram",
+    "district": "Chattogram",
+    "upazila": "Sitakunda Sadar",
+    "full_address": "Faujdarhat, Sitakunda, Chattogram",
+    "latitude": 22.3956,
+    "longitude": 91.7584,
+    "source_url": "http://fcc.army.mil.bd/",
+    "verification_status": "estimated",
+    "programs": ["class-7", "class-8", "class-9", "class-10-ssc", "class-11", "class-12-hsc"],
+    "facilities": ["library", "computer-lab", "science-lab", "playground", "swimming-pool", "canteen", "gymnasium"],
+    "contacts": [
+      { "type": "phone", "value": "+88031751101" }
+    ],
+    "fees": {
+      "monthly-tuition": { "amount": 1500, "frequency": "monthly" },
+      "admission-fee": { "amount": 10000, "frequency": "one_time" },
+      "session-fee": { "amount": 5000, "frequency": "yearly" }
+    }
+  },
+  {
+    "name": "Chattogram Polytechnic Institute",
+    "short_name": "CPI",
+    "institute_code": "131454",
+    "type": "polytechnic",
+    "category": "technical-vocational",
+    "curriculum": "technical-vocational",
+    "board": "bteb",
+    "gender": "co_educational",
+    "religious_orientation": "not_applicable",
+    "established_year": 1962,
+    "division": "Chattogram",
+    "district": "Chattogram",
+    "upazila": "Bayezid",
+    "full_address": "Polytechnic Road, Bayezid Bostami, Chattogram",
+    "latitude": 22.3712,
+    "longitude": 91.8152,
+    "source_url": "http://www.gcp.edu.bd/",
+    "verification_status": "estimated",
+    "programs": ["class-11", "class-12-hsc"],
+    "facilities": ["library", "computer-lab", "science-lab", "playground", "auditorium", "canteen"],
+    "contacts": [
+      { "type": "phone", "value": "+88031681234" },
+      { "type": "email", "value": "principal@gcp.edu.bd" }
+    ],
+    "fees": {
+      "monthly-tuition": { "amount": 150, "frequency": "monthly" },
+      "admission-fee": { "amount": 1000, "frequency": "one_time" },
+      "session-fee": { "amount": 1200, "frequency": "yearly" }
+    }
+  },
+  {
+    "name": "Nasirabad Government High School",
+    "short_name": "NGHS",
+    "institute_code": "104381",
+    "type": "school",
+    "category": "bangla-medium",
+    "curriculum": "national-curriculum-bangladesh",
+    "board": "chattogram-board",
+    "gender": "boys",
+    "religious_orientation": "not_applicable",
+    "established_year": 1967,
+    "division": "Chattogram",
+    "district": "Chattogram",
+    "upazila": "Khulshi",
+    "full_address": "Nasirabad, Khulshi, Chattogram",
+    "latitude": 22.3653,
+    "longitude": 91.8217,
+    "source_url": "http://www.nasirabadgovhighschool.edu.bd/",
+    "verification_status": "estimated",
+    "programs": ["class-6", "class-7", "class-8", "class-9", "class-10-ssc"],
+    "facilities": ["library", "computer-lab", "science-lab", "playground"],
+    "contacts": [
+      { "type": "phone", "value": "+88031653450" }
+    ],
+    "fees": {
+      "monthly-tuition": { "amount": 150, "frequency": "monthly" },
+      "admission-fee": { "amount": 1200, "frequency": "one_time" },
+      "session-fee": { "amount": 1700, "frequency": "yearly" }
+    }
+  },
+  {
+    "name": "Cantonment English School & College",
+    "short_name": "CESC",
+    "institute_code": "104467",
+    "type": "school",
+    "category": "private",
+    "curriculum": "edexcel-international",
+    "board": "chattogram-board",
+    "gender": "co_educational",
+    "religious_orientation": "not_applicable",
+    "established_year": 1998,
+    "division": "Chattogram",
+    "district": "Chattogram",
+    "upazila": "Panchlaish",
+    "full_address": "Chittagong Cantonment, Panchlaish, Chattogram",
+    "latitude": 22.3856,
+    "longitude": 91.8175,
+    "source_url": "http://www.cesc.edu.bd/",
+    "verification_status": "estimated",
+    "programs": ["playgroup", "nursery", "class-1", "class-5", "class-9", "class-10-ssc", "class-11", "class-12-hsc"],
+    "facilities": ["library", "computer-lab", "science-lab", "playground", "auditorium", "canteen", "school-bus", "cctv"],
+    "contacts": [
+      { "type": "phone", "value": "+88031681756" },
+      { "type": "email", "value": "cesc@mail.com" }
+    ],
+    "fees": {
+      "monthly-tuition": { "amount": 5000, "frequency": "monthly" },
+      "admission-fee": { "amount": 15000, "frequency": "one_time" },
+      "session-fee": { "amount": 10000, "frequency": "yearly" }
+    }
+  }
+]

@@ -34,9 +34,9 @@ class ScraperSource extends Model
         return $this->hasMany(ScraperRun::class);
     }
 
-    public function latestRun(): HasMany
+    public function latestRun(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
-        return $this->hasMany(ScraperRun::class)->latestOfMany();
+        return $this->hasOne(ScraperRun::class)->latestOfMany();
     }
 
     public function scopeActive($query)

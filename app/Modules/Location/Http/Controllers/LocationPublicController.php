@@ -67,7 +67,8 @@ class LocationPublicController extends Controller
      */
     public static function getCachedDivisions()
     {
-        return Cache::remember('location:divisions:all', 86400, fn () => Division::all());
+        $data = Cache::remember('location:divisions:all', 86400, fn () => Division::all()->toArray());
+        return Division::hydrate($data);
     }
 
     /**
@@ -75,6 +76,24 @@ class LocationPublicController extends Controller
      */
     public static function getCachedDistricts()
     {
-        return Cache::remember('location:districts:all', 86400, fn () => District::with('division')->get());
+        $data = Cache::remember('location:districts:all', 86400, function () {
+            return District::with('division')->get()->map(function ($district) {
+                $arr = $district->toArray();
+                if ($district->relationLoaded('division') && $district->division) {
+                    $arr['division'] = $district->division->toArray();
+                }
+                return $arr;
+            })->toArray();
+        });
+
+        $districts = District::hydrate($data);
+        foreach ($districts as $index => $district) {
+            $raw = $data[$index];
+            if (isset($raw['division'])) {
+                $district->setRelation('division', (new Division)->newFromBuilder($raw['division']));
+            }
+        }
+        return $districts;
     }
 }
+

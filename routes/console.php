@@ -23,6 +23,11 @@ Artisan::registerCommand(new ScraperCleanupCommand);
 Artisan::registerCommand(new GenerateSitemap);
 Artisan::registerCommand(new GeneratePSEO);
 
+Artisan::registerCommand(new \App\Modules\ETL\Commands\IngestCommand);
+Artisan::registerCommand(new \App\Modules\ETL\Commands\ProcessEtlCommand);
+Artisan::registerCommand(new \App\Modules\ETL\Commands\DeduplicateCommand);
+Artisan::registerCommand(new \App\Modules\ETL\Commands\ImportOsmCommand);
+
 Schedule::command('scraper:run --frequency=hourly')->hourly();
 Schedule::command('scraper:run --frequency=daily')->dailyAt('03:00');
 Schedule::command('scraper:run --frequency=weekly')->weeklyOn(0, '02:00');

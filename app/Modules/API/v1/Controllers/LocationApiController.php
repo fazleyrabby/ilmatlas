@@ -81,11 +81,11 @@ class LocationApiController extends Controller
                 $query->whereHas('district', fn ($q) => $q->where('slug', $districtParam)->orWhere('id', $districtParam));
             }
 
-            return $query->get();
+            return UpazilaResource::collection($query->get())->resolve();
         });
 
         return response()->json([
-            'data' => UpazilaResource::collection($upazilas),
+            'data' => $upazilas,
         ])->withHeaders([
             'Cache-Control' => 'public, max-age=3600',
         ]);

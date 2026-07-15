@@ -24,17 +24,20 @@
                 </div>
                 <p class="mt-1 flex items-center gap-1.5 text-metadata">
                     <i data-lucide="map-pin" class="h-3.5 w-3.5"></i>
-                    <span class="truncate">{{ $institute->district?->name }}{{ $institute->upazila ? ', '.$institute->upazila->name : '' }}</span>
+                    <span class="truncate">
+                        {{ data_get($institute, 'district.name') }}
+                        {{ data_get($institute, 'upazila.name') ? ', ' . data_get($institute, 'upazila.name') : '' }}
+                    </span>
                 </p>
             </div>
         </div>
 
         <div class="mt-4 flex flex-wrap gap-1.5">
-            @if($institute->type)
-                <span class="badge badge-neutral">{{ $institute->type->name }}</span>
+            @if(data_get($institute, 'type.name'))
+                <span class="badge badge-neutral">{{ data_get($institute, 'type.name') }}</span>
             @endif
-            @if($institute->gender)
-                <span class="badge badge-neutral capitalize">{{ $institute->gender }}</span>
+            @if(data_get($institute, 'gender'))
+                <span class="badge badge-neutral capitalize">{{ data_get($institute, 'gender') }}</span>
             @endif
         </div>
 

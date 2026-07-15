@@ -21,10 +21,10 @@ class TaxonomyApiController extends Controller
      */
     public function types(): JsonResponse
     {
-        $types = Cache::remember('api:v1:taxonomies:types', 86400, fn () => InstituteType::all());
+        $types = Cache::remember('api:v1:taxonomies:types', 86400, fn () => TaxonomyResource::collection(InstituteType::all())->resolve());
 
         return response()->json([
-            'data' => TaxonomyResource::collection($types),
+            'data' => $types,
         ])->withHeaders(['Cache-Control' => 'public, max-age=86400']);
     }
 
@@ -33,10 +33,10 @@ class TaxonomyApiController extends Controller
      */
     public function categories(): JsonResponse
     {
-        $categories = Cache::remember('api:v1:taxonomies:categories', 86400, fn () => Category::where('is_active', true)->get());
+        $categories = Cache::remember('api:v1:taxonomies:categories', 86400, fn () => TaxonomyResource::collection(Category::where('is_active', true)->get())->resolve());
 
         return response()->json([
-            'data' => TaxonomyResource::collection($categories),
+            'data' => $categories,
         ])->withHeaders(['Cache-Control' => 'public, max-age=86400']);
     }
 
@@ -45,10 +45,10 @@ class TaxonomyApiController extends Controller
      */
     public function curriculums(): JsonResponse
     {
-        $curriculums = Cache::remember('api:v1:taxonomies:curriculums', 86400, fn () => Curriculum::where('is_active', true)->get());
+        $curriculums = Cache::remember('api:v1:taxonomies:curriculums', 86400, fn () => TaxonomyResource::collection(Curriculum::where('is_active', true)->get())->resolve());
 
         return response()->json([
-            'data' => TaxonomyResource::collection($curriculums),
+            'data' => $curriculums,
         ])->withHeaders(['Cache-Control' => 'public, max-age=86400']);
     }
 
@@ -57,10 +57,10 @@ class TaxonomyApiController extends Controller
      */
     public function boards(): JsonResponse
     {
-        $boards = Cache::remember('api:v1:taxonomies:boards', 86400, fn () => EducationBoard::all());
+        $boards = Cache::remember('api:v1:taxonomies:boards', 86400, fn () => TaxonomyResource::collection(EducationBoard::all())->resolve());
 
         return response()->json([
-            'data' => TaxonomyResource::collection($boards),
+            'data' => $boards,
         ])->withHeaders(['Cache-Control' => 'public, max-age=86400']);
     }
 
@@ -69,10 +69,10 @@ class TaxonomyApiController extends Controller
      */
     public function programs(): JsonResponse
     {
-        $programs = Cache::remember('api:v1:taxonomies:programs', 86400, fn () => Program::all());
+        $programs = Cache::remember('api:v1:taxonomies:programs', 86400, fn () => TaxonomyResource::collection(Program::all())->resolve());
 
         return response()->json([
-            'data' => TaxonomyResource::collection($programs),
+            'data' => $programs,
         ])->withHeaders(['Cache-Control' => 'public, max-age=86400']);
     }
 
@@ -81,10 +81,10 @@ class TaxonomyApiController extends Controller
      */
     public function facilities(): JsonResponse
     {
-        $facilities = Cache::remember('api:v1:taxonomies:facilities', 86400, fn () => Facility::all());
+        $facilities = Cache::remember('api:v1:taxonomies:facilities', 86400, fn () => TaxonomyResource::collection(Facility::all())->resolve());
 
         return response()->json([
-            'data' => TaxonomyResource::collection($facilities),
+            'data' => $facilities,
         ])->withHeaders(['Cache-Control' => 'public, max-age=86400']);
     }
 
@@ -93,10 +93,11 @@ class TaxonomyApiController extends Controller
      */
     public function feeTypes(): JsonResponse
     {
-        $feeTypes = Cache::remember('api:v1:taxonomies:fee-types', 86400, fn () => FeeType::all());
+        $feeTypes = Cache::remember('api:v1:taxonomies:fee-types', 86400, fn () => TaxonomyResource::collection(FeeType::all())->resolve());
 
         return response()->json([
-            'data' => TaxonomyResource::collection($feeTypes),
+            'data' => $feeTypes,
         ])->withHeaders(['Cache-Control' => 'public, max-age=86400']);
     }
 }
+

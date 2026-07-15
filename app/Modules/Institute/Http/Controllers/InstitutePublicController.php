@@ -31,16 +31,50 @@ class InstitutePublicController extends Controller
                 ->latest('published_at')
                 ->paginate(20);
 
+            $items = collect($paginator->items())->map(function ($item) {
+                $arr = $item->toArray();
+                if ($item->relationLoaded('type') && $item->type) {
+                    $arr['type'] = $item->type->toArray();
+                }
+                if ($item->relationLoaded('district') && $item->district) {
+                    $arr['district'] = $item->district->toArray();
+                }
+                if ($item->relationLoaded('upazila') && $item->upazila) {
+                    $arr['upazila'] = $item->upazila->toArray();
+                }
+                if ($item->relationLoaded('primaryCategory') && $item->primaryCategory) {
+                    $arr['primary_category'] = $item->primaryCategory->toArray();
+                }
+                return $arr;
+            })->toArray();
+
             return [
-                'items' => $paginator->items(),
+                'items' => $items,
                 'total' => $paginator->total(),
                 'per_page' => $paginator->perPage(),
                 'current_page' => $paginator->currentPage(),
             ];
         });
 
+        $hydratedItems = Institute::hydrate($cachedData['items']);
+        foreach ($hydratedItems as $index => $item) {
+            $raw = $cachedData['items'][$index];
+            if (isset($raw['type'])) {
+                $item->setRelation('type', (new \App\Modules\Taxonomy\Models\InstituteType)->newFromBuilder($raw['type']));
+            }
+            if (isset($raw['district'])) {
+                $item->setRelation('district', (new \App\Modules\Location\Models\District)->newFromBuilder($raw['district']));
+            }
+            if (isset($raw['upazila'])) {
+                $item->setRelation('upazila', (new \App\Modules\Location\Models\Upazila)->newFromBuilder($raw['upazila']));
+            }
+            if (isset($raw['primary_category'])) {
+                $item->setRelation('primaryCategory', (new \App\Modules\Taxonomy\Models\Category)->newFromBuilder($raw['primary_category']));
+            }
+        }
+
         $institutes = new LengthAwarePaginator(
-            $cachedData['items'],
+            $hydratedItems,
             $cachedData['total'],
             $cachedData['per_page'],
             $cachedData['current_page'],
@@ -152,11 +186,11 @@ class InstitutePublicController extends Controller
     {
         abort_unless($institute->status === 'published', 404);
 
-        $institute = Cache::remember(
-            "institute:{$institute->uuid}:profile",
+        $cachedData = Cache::remember(
+            "institute:{$institute->uuid}:profile:data",
             600,
             function () use ($institute) {
-                return $institute->load([
+                $institute->load([
                     'type', 'primaryCategory', 'country', 'division', 'district', 'upazila', 'area',
                     'categories', 'curriculums', 'boards', 'programs', 'subjects',
                     'facilities.group', 'languages', 'contacts', 'socialLinks',
@@ -164,8 +198,63 @@ class InstitutePublicController extends Controller
                     'fees' => fn ($q) => $q->where('moderation_status', 'approved')->where('is_published', true),
                     'admissionCirculars' => fn ($q) => $q->where('is_published', true),
                 ]);
+
+                $arr = $institute->toArray();
+
+                $relations = ['type', 'primaryCategory', 'country', 'division', 'district', 'upazila', 'area', 'categories', 'curriculums', 'boards', 'programs', 'subjects', 'facilities', 'languages', 'contacts', 'socialLinks', 'media', 'shifts', 'fees', 'admissionCirculars'];
+                foreach ($relations as $rel) {
+                    $snakeRel = Str::snake($rel);
+                    if ($institute->relationLoaded($rel)) {
+                        $arr["_relation_{$snakeRel}"] = $institute->{$rel} ? $institute->{$rel}->toArray() : null;
+                    }
+                }
+
+                return $arr;
             }
         );
+
+        $institute = (new Institute)->newFromBuilder($cachedData);
+        $relations = ['type', 'primaryCategory', 'country', 'division', 'district', 'upazila', 'area', 'categories', 'curriculums', 'boards', 'programs', 'subjects', 'facilities', 'languages', 'contacts', 'socialLinks', 'media', 'shifts', 'fees', 'admissionCirculars'];
+        foreach ($relations as $rel) {
+            $snakeRel = Str::snake($rel);
+            if (array_key_exists("_relation_{$snakeRel}", $cachedData)) {
+                $relData = $cachedData["_relation_{$snakeRel}"];
+                if ($relData === null) {
+                    $institute->setRelation($rel, null);
+                    continue;
+                }
+
+                $modelClass = match ($rel) {
+                    'type' => \App\Modules\Taxonomy\Models\InstituteType::class,
+                    'primaryCategory' => \App\Modules\Taxonomy\Models\Category::class,
+                    'country' => \App\Modules\Location\Models\Country::class,
+                    'division' => \App\Modules\Location\Models\Division::class,
+                    'district' => \App\Modules\Location\Models\District::class,
+                    'upazila' => \App\Modules\Location\Models\Upazila::class,
+                    'area' => \App\Modules\Location\Models\Area::class,
+                    'categories' => \App\Modules\Taxonomy\Models\Category::class,
+                    'curriculums' => \App\Modules\Taxonomy\Models\Curriculum::class,
+                    'boards' => \App\Modules\Taxonomy\Models\EducationBoard::class,
+                    'programs' => \App\Modules\Taxonomy\Models\Program::class,
+                    'subjects' => \App\Modules\Taxonomy\Models\Subject::class,
+                    'facilities' => \App\Modules\Taxonomy\Models\Facility::class,
+                    'languages' => \App\Modules\Taxonomy\Models\Language::class,
+                    'contacts' => \App\Modules\Institute\Models\InstituteContact::class,
+                    'socialLinks' => \App\Modules\Institute\Models\InstituteSocialLink::class,
+                    'media' => \App\Modules\Institute\Models\InstituteMedia::class,
+                    'shifts' => \App\Modules\Institute\Models\InstituteShift::class,
+                    'fees' => \App\Modules\Fee\Models\FeeStructure::class,
+                    'admissionCirculars' => \App\Modules\Admission\Models\AdmissionCircular::class,
+                };
+
+                if (in_array($rel, ['categories', 'curriculums', 'boards', 'programs', 'subjects', 'facilities', 'languages', 'contacts', 'socialLinks', 'media', 'shifts', 'fees', 'admissionCirculars'])) {
+                    $collection = collect($relData)->map(fn ($itemData) => (new $modelClass)->newFromBuilder($itemData));
+                    $institute->setRelation($rel, $collection);
+                } else {
+                    $institute->setRelation($rel, (new $modelClass)->newFromBuilder($relData));
+                }
+            }
+        }
 
         $institute->increment('view_count');
 

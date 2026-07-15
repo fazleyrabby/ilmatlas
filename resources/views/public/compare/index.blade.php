@@ -12,6 +12,30 @@
     table { box-shadow: none !important; }
     th.sticky { position: static !important; }
 }
+
+/* GSMArena Style Adjustments */
+.eb-table th, .eb-table td {
+    border: 1px solid #e5e7eb;
+    padding: 0.5rem 0.75rem;
+}
+.eb-table thead th {
+    background-color: #f9fafb;
+    border-bottom: 2px solid #e5e7eb;
+}
+.group-header-cell {
+    color: #dc2626; /* red-600 */
+    font-weight: 700;
+    text-transform: uppercase;
+    background-color: #f9fafb;
+    vertical-align: top;
+    width: 120px;
+}
+.row-label-cell {
+    font-weight: 600;
+    color: #4b5563; /* gray-600 */
+    background-color: #f9fafb;
+    width: 160px;
+}
 </style>
 @endpush
 
@@ -22,6 +46,35 @@ function copyShareUrl() {
         alert('Comparison URL copied to clipboard!');
     });
 }
+
+document.addEventListener('alpine:init', () => {
+    Alpine.data('comparisonTable', () => ({
+        hideIdentical: true,
+        groups: {
+            @foreach($matrix->groups as $group)
+            '{{ $group->slug }}': [
+                @foreach($group->rows as $row)
+                { identical: {{ $row->allIdentical ? 'true' : 'false' }} }@if(!$loop->last),@endif
+                @endforeach
+            ]@if(!$loop->last),@endif
+            @endforeach
+        },
+        getVisibleCount(slug) {
+            if (!this.hideIdentical) return this.groups[slug].length;
+            return this.groups[slug].filter(r => !r.identical).length;
+        },
+        isFirstVisible(slug, index) {
+            if (!this.hideIdentical) return index === 0;
+            const rows = this.groups[slug];
+            for (let i = 0; i < rows.length; i++) {
+                if (!rows[i].identical) {
+                    return i === index;
+                }
+            }
+            return false;
+        }
+    }));
+});
 </script>
 @endpush
 
@@ -68,47 +121,43 @@ function copyShareUrl() {
         </div>
     </div>
 
-    <div class="card overflow-hidden" x-data="{ collapsed: {}, hideIdentical: true }">
+    <div class="card overflow-hidden" x-data="comparisonTable()">
         <div class="overflow-x-auto">
-            <table class="eb-table w-full" id="comparisonTable">
+            <table class="eb-table w-full text-sm" id="comparisonTable">
                 <thead>
                     <tr>
-                        <th class="sticky left-0 z-10 min-w-[180px] bg-surface-muted"></th>
+                        <th colspan="2" class="sticky left-0 z-10 bg-surface-muted"></th>
                         @foreach ($matrix->institutes as $institute)
                             <th class="relative min-w-[220px] text-center">
-                                <a href="{{ route('institutes.show', $institute) }}" class="font-semibold text-primary-700 hover:text-primary-800 normal-case tracking-normal text-sm">
+                                <a href="{{ route('institutes.show', $institute) }}" class="font-semibold text-primary-700 hover:text-primary-800 normal-case tracking-normal">
                                     {{ $institute->name }}
                                 </a>
                                 <button data-remove-slug="{{ $institute->slug }}"
-                                        class="compare-remove absolute right-1 top-1"
+                                        class="compare-remove absolute right-2 top-2"
                                         title="Remove from comparison" aria-label="Remove"><i data-lucide="x" style="width:0.85rem;height:0.85rem;stroke-width:3"></i></button>
                             </th>
                         @endforeach
                     </tr>
                 </thead>
                 @foreach ($matrix->groups as $group)
-                    <tbody>
-                        <tr class="compare-group-header"
-                            :class="collapsed['{{ $group->slug }}'] ? 'collapsed' : ''"
-                            @click="collapsed['{{ $group->slug }}'] = !collapsed['{{ $group->slug }}']">
-                            <td colspan="{{ count($matrix->institutes) + 1 }}"
-                                class="flex items-center gap-2 bg-surface-muted text-xs font-bold uppercase tracking-wider text-text-muted">
-                                <i data-lucide="chevron-down" class="chevron h-4 w-4"></i>
-                                {{ $group->name }}
-                                <span class="ml-1 rounded-full bg-neutral-200 px-2 py-0.5 text-[10px] font-semibold text-neutral-600"
-                                      x-show="collapsed['{{ $group->slug }}']" style="display:none">{{ count($group->rows) }}</span>
-                            </td>
-                        </tr>
-                        @foreach ($group->rows as $row)
-                            <tr class="compare-row"
-                                x-show="!collapsed['{{ $group->slug }}'] && !(hideIdentical && {{ $row->allIdentical ? 'true' : 'false' }})"
-                                x-cloak
-                                :class="!{{ $row->allIdentical ? 'true' : 'false' }} ? 'compare-row-diff' : ''">
-                                <td class="sticky left-0 z-10 bg-surface font-medium text-text-secondary">
+                    <tbody x-show="getVisibleCount('{{ $group->slug }}') > 0">
+                        @foreach ($group->rows as $index => $row)
+                            <tr class="compare-row bg-white hover:bg-gray-50 transition-colors"
+                                x-show="!(hideIdentical && {{ $row->allIdentical ? 'true' : 'false' }})"
+                                x-cloak>
+                                
+                                <template x-if="isFirstVisible('{{ $group->slug }}', {{ $index }})">
+                                    <th class="group-header-cell sticky left-0 z-10" :rowspan="getVisibleCount('{{ $group->slug }}')">
+                                        {{ $group->name }}
+                                    </th>
+                                </template>
+
+                                <td class="row-label-cell sticky left-[120px] z-10">
                                     {{ $row->label }}
                                 </td>
-                                @foreach ($row->values as $vi => $value)
-                                    <td class="text-center {{ $row->allIdentical ? 'text-text-muted' : 'compare-cell-diff' }}">
+                                
+                                @foreach ($row->values as $value)
+                                    <td class="text-center {{ $row->allIdentical ? 'text-gray-500' : 'text-gray-900 font-medium' }}">
                                         {!! $value !!}
                                     </td>
                                 @endforeach

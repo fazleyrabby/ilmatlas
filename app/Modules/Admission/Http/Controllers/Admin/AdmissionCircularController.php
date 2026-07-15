@@ -6,8 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Modules\Admission\Models\AdmissionCircular;
 use App\Modules\Admission\Models\AdmissionSession;
 use App\Modules\Institute\Models\Institute;
+use App\Modules\User\Models\UserAlert;
+use App\Modules\User\Notifications\UserAlertNotification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -56,12 +59,31 @@ class AdmissionCircularController extends Controller
             'contact_info' => 'nullable|string|max:1000',
         ]);
 
-        AdmissionCircular::create([
+        $circular = AdmissionCircular::create([
             'uuid' => Str::uuid(),
             ...$data,
             'is_published' => true,
             'published_at' => now(),
         ]);
+
+        if ($circular->admission_status === 'open') {
+            $circular->loadMissing('institute');
+            $watchers = UserAlert::where('institute_id', $circular->institute_id)
+                ->where('alert_type', 'admission_openings')
+                ->where('is_active', true)
+                ->with('user')
+                ->get()
+                ->pluck('user')
+                ->filter();
+
+            if ($watchers->isNotEmpty()) {
+                $title = 'Admission Open Alert: '.($circular->institute?->name ?? 'Institute');
+                $content = "Admission session is now OPEN: '{$circular->title}'.";
+                $url = route('institutes.show', $circular->institute?->uuid ?? '');
+
+                Notification::send($watchers, new UserAlertNotification($title, $content, $url));
+            }
+        }
 
         return redirect()->route('admin.admissions.index')
             ->with('success', 'Admission circular created.');
@@ -96,7 +118,27 @@ class AdmissionCircularController extends Controller
             'contact_info' => 'nullable|string|max:1000',
         ]);
 
+        $oldStatus = $circular->admission_status;
         $circular->update($data);
+
+        if ($circular->admission_status === 'open' && $oldStatus !== 'open') {
+            $circular->loadMissing('institute');
+            $watchers = UserAlert::where('institute_id', $circular->institute_id)
+                ->where('alert_type', 'admission_openings')
+                ->where('is_active', true)
+                ->with('user')
+                ->get()
+                ->pluck('user')
+                ->filter();
+
+            if ($watchers->isNotEmpty()) {
+                $title = 'Admission Open Alert: '.($circular->institute?->name ?? 'Institute');
+                $content = "Admission session has been updated to OPEN: '{$circular->title}'.";
+                $url = route('institutes.show', $circular->institute?->uuid ?? '');
+
+                Notification::send($watchers, new UserAlertNotification($title, $content, $url));
+            }
+        }
 
         return redirect()->route('admin.admissions.index')
             ->with('success', 'Admission circular updated.');

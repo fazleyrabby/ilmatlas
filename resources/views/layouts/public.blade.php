@@ -35,6 +35,16 @@
             <nav class="flex items-center gap-6">
                 <a href="{{ route('institutes.index') }}" class="text-sm text-gray-600 hover:text-gray-900">Institutes</a>
                 <a href="{{ route('search') }}" class="text-sm text-gray-600 hover:text-gray-900">Search</a>
+                @auth
+                    <a href="{{ route('dashboard') }}" class="text-sm text-gray-600 hover:text-gray-900">Dashboard</a>
+                    <form method="POST" action="{{ route('logout') }}" class="inline">
+                        @csrf
+                        <button type="submit" class="text-sm text-red-600 hover:text-red-900">Logout</button>
+                    </form>
+                @else
+                    <a href="{{ route('login') }}" class="text-sm text-gray-600 hover:text-gray-900">Login</a>
+                    <a href="{{ route('register') }}" class="text-sm text-indigo-600 hover:text-indigo-900 font-medium">Register</a>
+                @endauth
             </nav>
         </div>
     </header>

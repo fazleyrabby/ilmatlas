@@ -4,6 +4,9 @@ namespace App\Modules\Fee\Services;
 
 use App\Models\User;
 use App\Modules\Fee\Models\FeeStructure;
+use App\Modules\User\Models\UserAlert;
+use App\Modules\User\Notifications\UserAlertNotification;
+use Illuminate\Support\Facades\Notification;
 
 class FeeModerationService
 {
@@ -16,6 +19,26 @@ class FeeModerationService
             'is_published' => true,
             'published_at' => now(),
         ]);
+
+        // Eager load relations for sitemap/notification properties safely
+        $fee->loadMissing(['institute', 'feeType']);
+
+        // Dispatch alert to watchers
+        $watchers = UserAlert::where('institute_id', $fee->institute_id)
+            ->where('alert_type', 'fee_changes')
+            ->where('is_active', true)
+            ->with('user')
+            ->get()
+            ->pluck('user')
+            ->filter();
+
+        if ($watchers->isNotEmpty()) {
+            $title = 'Fee Update Alert: '.($fee->institute?->name ?? 'Institute');
+            $content = "A new fee structure '".($fee->feeType?->name ?? 'Fee')."' of amount {$fee->amount} BDT has been approved and published.";
+            $url = route('institutes.show', $fee->institute?->uuid ?? '');
+
+            Notification::send($watchers, new UserAlertNotification($title, $content, $url));
+        }
 
         return $fee;
     }

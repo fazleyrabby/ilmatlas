@@ -2,10 +2,14 @@
 
 namespace App\Models;
 
+use App\Modules\User\Models\SavedComparison;
+use App\Modules\User\Models\UserAlert;
+use App\Modules\User\Models\UserFavorite;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
@@ -23,5 +27,20 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function favorites(): HasMany
+    {
+        return $this->hasMany(UserFavorite::class);
+    }
+
+    public function savedComparisons(): HasMany
+    {
+        return $this->hasMany(SavedComparison::class);
+    }
+
+    public function alerts(): HasMany
+    {
+        return $this->hasMany(UserAlert::class);
     }
 }

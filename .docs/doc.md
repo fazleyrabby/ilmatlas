@@ -191,6 +191,22 @@ Performance optimization, testing, bug fixes, security hardening.
 
 ---
 
+## Phase 8 — User Accounts ✅ COMPLETE
+
+### Goal
+User registration, bookmarks/favorites, saved comparisons, and email alert subscriptions.
+
+### Progress
+
+| # | Task | Status | Notes |
+|---|------|--------|-------|
+| 8.1 | User registration and logins | ✅ Done | Public registration, login, logout views and controllers |
+| 8.2 | Favorites and bookmarks | ✅ Done | Bookmark favorite schools, managed in user dashboard |
+| 8.3 | Saved comparisons | ✅ Done | Save comparison arrays containing institute uuids |
+| 8.4 | Email watchlists & notifications | ✅ Done | Email notifications triggered dynamically on fee updates and open admission status circular updates |
+
+---
+
 ## Database State
 
 | Type | Count |

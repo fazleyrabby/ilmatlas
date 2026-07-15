@@ -6,7 +6,7 @@ services:
     container_name: edubase_app
     restart: unless-stopped
     ports:
-      - "127.0.0.1:8082:80"
+      - "127.0.0.1:8083:80"
     env_file:
       - .env
     volumes:

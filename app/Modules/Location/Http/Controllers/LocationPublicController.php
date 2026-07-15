@@ -7,6 +7,7 @@ use App\Modules\Institute\Models\Institute;
 use App\Modules\Location\Models\District;
 use App\Modules\Location\Models\Division;
 use App\Modules\Location\Models\Upazila;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 
 class LocationPublicController extends Controller
@@ -56,5 +57,21 @@ class LocationPublicController extends Controller
             ->paginate(20);
 
         return view('public.locations.upazila', compact('upazila', 'institutes'));
+    }
+
+    /**
+     * Get all divisions (cached 24h).
+     */
+    public static function getCachedDivisions()
+    {
+        return Cache::remember('location:divisions:all', 86400, fn () => Division::all());
+    }
+
+    /**
+     * Get all districts (cached 24h).
+     */
+    public static function getCachedDistricts()
+    {
+        return Cache::remember('location:districts:all', 86400, fn () => District::with('division')->get());
     }
 }

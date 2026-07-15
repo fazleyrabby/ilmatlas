@@ -1,0 +1,22 @@
+<?php
+
+namespace App\Modules\API\v1\Resources;
+
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
+
+class UpazilaResource extends JsonResource
+{
+    public function toArray(Request $request): array
+    {
+        return [
+            'id' => $this->id,
+            'uuid' => $this->uuid,
+            'name' => $this->name,
+            'slug' => $this->slug,
+            'bn_name' => $this->bn_name,
+            'district_id' => $this->district_id,
+            'is_active' => (bool) $this->is_active,
+        ];
+    }
+}

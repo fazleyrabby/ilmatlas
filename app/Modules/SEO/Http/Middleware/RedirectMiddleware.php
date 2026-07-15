@@ -11,7 +11,7 @@ class RedirectMiddleware
 {
     public function handle(Request $request, Closure $next): Response
     {
-        $path = '/' . trim($request->path(), '/');
+        $path = '/'.trim($request->path(), '/');
         $hash = hash('sha256', $path);
 
         $redirect = Redirect::where('from_path_hash', $hash)

@@ -3,10 +3,11 @@
 namespace App\Modules\SEO\Http\Controllers\Admin;
 
 use App\Models\InstituteType;
-use App\Modules\Location\Models\District;
 use App\Modules\Institute\Models\Institute;
+use App\Modules\Location\Models\District;
 use App\Modules\SEO\Models\Redirect;
 use App\Modules\SEO\Models\SeoMetadata;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Routing\Controller;
 
 class SeoAdminController extends Controller
@@ -89,7 +90,7 @@ class SeoAdminController extends Controller
         return redirect()->back()->with('success', 'Redirect deleted successfully.');
     }
 
-    private function resolveEntity(string $type, int $id): ?\Illuminate\Database\Eloquent\Model
+    private function resolveEntity(string $type, int $id): ?Model
     {
         return match ($type) {
             'institute' => Institute::find($id),

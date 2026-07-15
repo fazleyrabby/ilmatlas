@@ -8,10 +8,10 @@ use App\Modules\Scraper\Events\ScraperRunCompleted;
 use App\Modules\Scraper\Models\ScraperLog;
 use App\Modules\Scraper\Models\ScraperRun;
 use App\Modules\Scraper\Models\ScraperSource;
+use App\Modules\Scraper\Notifications\ScraperFailedNotification;
 use App\Modules\Scraper\Services\ChangeDetector;
 use App\Modules\Scraper\Services\ConfidenceScorer;
 use App\Modules\Scraper\Services\ScraperAdapterFactory;
-use App\Modules\Scraper\Notifications\ScraperFailedNotification;
 use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
@@ -23,12 +23,14 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
 
-class ProcessScraperJob implements ShouldQueue, ShouldBeUnique
+class ProcessScraperJob implements ShouldBeUnique, ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $tries = 3;
+
     public $backoff = [30, 120, 300];
+
     public $uniqueFor = 3600;
 
     public function __construct(
@@ -70,6 +72,7 @@ class ProcessScraperJob implements ShouldQueue, ShouldBeUnique
             if ($confidence < 0.30) {
                 $this->log($run, 'warning', "Low confidence ({$confidence}), skipping.");
                 $run->update(['status' => 'failed', 'finished_at' => now(), 'error_message' => "Confidence too low: {$confidence}"]);
+
                 return;
             }
 
@@ -119,6 +122,7 @@ class ProcessScraperJob implements ShouldQueue, ShouldBeUnique
     {
         if (! isset($data['amount']) || ! isset($data['fee_type_id'])) {
             $this->log($run, 'warning', 'Incomplete fee data, skipping persist.');
+
             return;
         }
 

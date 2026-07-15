@@ -4,7 +4,6 @@ namespace App\Modules\Scraper\Services;
 
 use App\Modules\Fee\Models\FeeStructure;
 use App\Modules\Institute\Models\Institute;
-use Illuminate\Support\Collection;
 
 class ChangeDetector
 {
@@ -27,6 +26,7 @@ class ChangeDetector
                     'existing' => null,
                     'deviation_percent' => null,
                 ];
+
                 continue;
             }
 
@@ -60,6 +60,7 @@ class ChangeDetector
                 return true;
             }
         }
+
         return false;
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Vite;
 use Symfony\Component\HttpFoundation\Response;
 
 class SecurityHeaders
@@ -12,6 +13,7 @@ class SecurityHeaders
     {
         $nonce = base64_encode(random_bytes(16));
         app()->instance('csp-nonce', $nonce);
+        Vite::useCspNonce($nonce);
 
         $response = $next($request);
 

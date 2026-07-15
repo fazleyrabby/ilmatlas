@@ -10,7 +10,10 @@ class ClearInstituteCache
 {
     public function handle(InstituteUpdated|InstituteArchived $event): void
     {
-        Cache::forget("institute:{$event->institute->uuid}");
+        $uuid = $event->institute->uuid;
+
+        Cache::forget("institute:{$uuid}");
         Cache::forget("institute:{$event->institute->id}");
+        Cache::forget("institute:{$uuid}:profile");
     }
 }

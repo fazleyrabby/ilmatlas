@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\User;
 use App\Modules\Admission\Models\AdmissionCircular;
 use App\Modules\Admission\Models\AdmissionSession;
 use App\Modules\Institute\Models\Institute;
@@ -7,24 +8,25 @@ use App\Modules\Location\Models\Country;
 use App\Modules\Location\Models\District;
 use App\Modules\Location\Models\Division;
 use App\Modules\Taxonomy\Models\InstituteType;
-use App\Models\User;
+use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Str;
 
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
-    $this->seed([\Database\Seeders\RolePermissionSeeder::class]);
+    $this->seed([RolePermissionSeeder::class]);
 
     $this->admin = User::factory()->create();
     $this->admin->assignRole('super_admin');
 
-    $type = InstituteType::create(['uuid' => (string) \Illuminate\Support\Str::uuid(), 'name' => 'School', 'slug' => 'school']);
-    $country = Country::create(['uuid' => (string) \Illuminate\Support\Str::uuid(), 'name' => 'Bangladesh', 'code' => 'BD', 'slug' => 'bangladesh']);
-    $division = Division::create(['uuid' => (string) \Illuminate\Support\Str::uuid(), 'name' => 'Dhaka', 'slug' => 'dhaka', 'country_id' => $country->id]);
-    $district = District::create(['uuid' => (string) \Illuminate\Support\Str::uuid(), 'name' => 'Dhaka', 'slug' => 'dhaka', 'division_id' => $division->id]);
+    $type = InstituteType::create(['uuid' => (string) Str::uuid(), 'name' => 'School', 'slug' => 'school']);
+    $country = Country::create(['uuid' => (string) Str::uuid(), 'name' => 'Bangladesh', 'code' => 'BD', 'slug' => 'bangladesh']);
+    $division = Division::create(['uuid' => (string) Str::uuid(), 'name' => 'Dhaka', 'slug' => 'dhaka', 'country_id' => $country->id]);
+    $district = District::create(['uuid' => (string) Str::uuid(), 'name' => 'Dhaka', 'slug' => 'dhaka', 'division_id' => $division->id]);
 
     $this->institute = Institute::create([
-        'uuid' => (string) \Illuminate\Support\Str::uuid(),
+        'uuid' => (string) Str::uuid(),
         'name' => 'Test Institute',
         'slug' => 'test-institute',
         'institute_type_id' => $type->id,
@@ -37,7 +39,7 @@ beforeEach(function () {
     ]);
 
     $this->session = AdmissionSession::create([
-        'uuid' => (string) \Illuminate\Support\Str::uuid(),
+        'uuid' => (string) Str::uuid(),
         'name' => '2026',
         'slug' => '2026',
         'session_start' => '2026-01-01',
@@ -74,7 +76,7 @@ it('creates an admission circular', function () {
 
 it('edits an admission circular', function () {
     $circular = AdmissionCircular::create([
-        'uuid' => (string) \Illuminate\Support\Str::uuid(),
+        'uuid' => (string) Str::uuid(),
         'institute_id' => $this->institute->id,
         'admission_session_id' => $this->session->id,
         'title' => 'Class 1 Admission',

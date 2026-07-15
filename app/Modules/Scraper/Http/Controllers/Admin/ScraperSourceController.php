@@ -3,10 +3,11 @@
 namespace App\Modules\Scraper\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Modules\Scraper\Models\ScraperSource;
 use App\Modules\Institute\Models\Institute;
+use App\Modules\Scraper\Models\ScraperSource;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class ScraperSourceController extends Controller
@@ -23,6 +24,7 @@ class ScraperSourceController extends Controller
     public function create(): View
     {
         $institutes = Institute::orderBy('name')->get(['id', 'name']);
+
         return view('admin.scrapers.source-form', [
             'source' => new ScraperSource,
             'institutes' => $institutes,
@@ -43,7 +45,7 @@ class ScraperSourceController extends Controller
         ]);
 
         ScraperSource::create([
-            'uuid' => (string) \Illuminate\Support\Str::uuid(),
+            'uuid' => (string) Str::uuid(),
             ...$data,
             'is_active' => $data['is_active'] ?? true,
         ]);
@@ -55,6 +57,7 @@ class ScraperSourceController extends Controller
     public function edit(ScraperSource $source): View
     {
         $institutes = Institute::orderBy('name')->get(['id', 'name']);
+
         return view('admin.scrapers.source-form', compact('source', 'institutes'));
     }
 

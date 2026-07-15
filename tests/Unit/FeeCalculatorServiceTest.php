@@ -54,5 +54,3 @@ it('returns null for percentage change when previous is null', function () {
 it('handles negative percentage change', function () {
     expect($this->calculator->calculatePercentageChange(1000, 800))->toBe(-20.0);
 });
-
-

@@ -1,7 +1,7 @@
 <?php
 
-use App\Modules\Scraper\Http\Controllers\Admin\ScraperSourceController;
 use App\Modules\Scraper\Http\Controllers\Admin\ScraperRunController;
+use App\Modules\Scraper\Http\Controllers\Admin\ScraperSourceController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {

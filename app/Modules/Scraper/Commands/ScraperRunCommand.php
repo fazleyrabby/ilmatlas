@@ -2,6 +2,7 @@
 
 namespace App\Modules\Scraper\Commands;
 
+use App\Modules\Scraper\Jobs\ProcessScraperJob;
 use App\Modules\Scraper\Models\ScraperSource;
 use Illuminate\Console\Command;
 
@@ -30,6 +31,7 @@ class ScraperRunCommand extends Command
 
         if ($sources->isEmpty()) {
             $this->info('No sources to run.');
+
             return 0;
         }
 
@@ -42,8 +44,8 @@ class ScraperRunCommand extends Command
                 continue;
             }
 
-            \App\Modules\Scraper\Jobs\ProcessScraperJob::dispatch($source);
-            $this->line("    -> Dispatched.");
+            ProcessScraperJob::dispatch($source);
+            $this->line('    -> Dispatched.');
         }
 
         return 0;

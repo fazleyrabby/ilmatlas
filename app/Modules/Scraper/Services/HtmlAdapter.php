@@ -4,6 +4,7 @@ namespace App\Modules\Scraper\Services;
 
 use App\Modules\Scraper\Contracts\ScraperAdapterInterface;
 use App\Modules\Scraper\Models\ScraperSource;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 use Symfony\Component\DomCrawler\Crawler;
 
@@ -27,7 +28,7 @@ class HtmlAdapter implements ScraperAdapterInterface
         $maxRetries = $config['retries'] ?? 3;
 
         $response = Http::retry($maxRetries, 1000, function ($exception) {
-            return $exception instanceof \Illuminate\Http\Client\ConnectionException;
+            return $exception instanceof ConnectionException;
         })
             ->timeout($timeout)
             ->withHeaders([

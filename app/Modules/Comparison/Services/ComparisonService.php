@@ -61,6 +61,7 @@ class ComparisonService
     public function generateComparisonSlug(array $institutes): string
     {
         $slugs = array_map(fn ($i) => $i->slug, $institutes);
+
         return implode('-vs-', $slugs);
     }
 
@@ -161,6 +162,7 @@ class ComparisonService
     {
         return array_map(function (ComparisonRow $row) {
             $unique = array_unique($row->values);
+
             return new ComparisonRow(
                 label: $row->label,
                 slug: $row->slug,

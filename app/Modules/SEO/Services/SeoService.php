@@ -3,7 +3,6 @@
 namespace App\Modules\SEO\Services;
 
 use App\Modules\Institute\Models\Institute;
-use App\Modules\SEO\Models\SeoMetadata;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 

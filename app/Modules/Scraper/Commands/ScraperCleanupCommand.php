@@ -9,6 +9,7 @@ use Illuminate\Console\Command;
 class ScraperCleanupCommand extends Command
 {
     protected $signature = 'scraper:cleanup {--older-than=90 : Delete runs older than this many days}';
+
     protected $description = 'Remove old scraper runs and logs';
 
     public function handle(): int

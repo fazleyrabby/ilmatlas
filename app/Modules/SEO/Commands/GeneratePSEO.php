@@ -3,14 +3,15 @@
 namespace App\Modules\SEO\Commands;
 
 use App\Modules\Institute\Models\Institute;
-use App\Modules\Taxonomy\Models\InstituteType;
 use App\Modules\Location\Models\District;
+use App\Modules\Taxonomy\Models\InstituteType;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
 
 class GeneratePSEO extends Command
 {
     protected $signature = 'seo:generate-pseo';
+
     protected $description = 'Pre-cache programmatic SEO page data for all type-district combinations';
 
     public function handle(): int
@@ -40,7 +41,7 @@ class GeneratePSEO extends Command
 
         $bar->finish();
         $this->newLine();
-        $this->info('PSEO data cached for ' . ($types->count() * $districts->count()) . ' combinations.');
+        $this->info('PSEO data cached for '.($types->count() * $districts->count()).' combinations.');
 
         return Command::SUCCESS;
     }

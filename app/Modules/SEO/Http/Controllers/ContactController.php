@@ -2,8 +2,8 @@
 
 namespace App\Modules\SEO\Http\Controllers;
 
-use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Mail;
 
 class ContactController extends Controller
@@ -28,7 +28,7 @@ class ContactController extends Controller
             });
         } catch (\Exception $e) {
             // Log but don't break — mail may not be configured
-            logger()->error('Contact form mail failed: ' . $e->getMessage());
+            logger()->error('Contact form mail failed: '.$e->getMessage());
         }
 
         return redirect()->route('contact')->with('success', 'Thank you! Your message has been sent.');

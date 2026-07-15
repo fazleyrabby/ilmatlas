@@ -9,6 +9,7 @@ use Illuminate\Console\Command;
 class ScraperTestCommand extends Command
 {
     protected $signature = 'scraper:test {id : Source ID to test}';
+
     protected $description = 'Test a scraper source without persisting results';
 
     public function handle(ScraperAdapterFactory $factory): int
@@ -17,6 +18,7 @@ class ScraperTestCommand extends Command
 
         if (! $source) {
             $this->error("Source [{$this->argument('id')}] not found.");
+
             return 1;
         }
 
@@ -30,11 +32,11 @@ class ScraperTestCommand extends Command
 
             $this->line('Fetching...');
             $raw = $adapter->fetch($source);
-            $this->line('  Fetched ' . strlen($raw) . ' bytes.');
+            $this->line('  Fetched '.strlen($raw).' bytes.');
 
             $this->line('Parsing...');
             $parsed = $adapter->parse($raw, $source);
-            $this->line('  Parsed keys: ' . implode(', ', array_keys($parsed)));
+            $this->line('  Parsed keys: '.implode(', ', array_keys($parsed)));
 
             $this->line('Normalizing...');
             $normalized = $adapter->normalize($parsed, $source);
@@ -47,6 +49,7 @@ class ScraperTestCommand extends Command
 
         } catch (\Throwable $e) {
             $this->error("Test failed: {$e->getMessage()}");
+
             return 1;
         }
 

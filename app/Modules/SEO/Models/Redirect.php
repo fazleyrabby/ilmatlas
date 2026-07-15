@@ -21,7 +21,7 @@ class Redirect extends Model
         parent::boot();
 
         static::saving(function (self $redirect) {
-            $redirect->from_path = '/' . trim($redirect->from_path, '/');
+            $redirect->from_path = '/'.trim($redirect->from_path, '/');
             $redirect->from_path_hash = hash('sha256', $redirect->from_path);
         });
     }

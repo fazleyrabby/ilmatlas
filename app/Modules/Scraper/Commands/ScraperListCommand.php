@@ -8,6 +8,7 @@ use Illuminate\Console\Command;
 class ScraperListCommand extends Command
 {
     protected $signature = 'scraper:list';
+
     protected $description = 'List all scraper sources';
 
     public function handle(): int
@@ -16,6 +17,7 @@ class ScraperListCommand extends Command
 
         if ($sources->isEmpty()) {
             $this->info('No scraper sources configured.');
+
             return 0;
         }
 

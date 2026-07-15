@@ -238,6 +238,40 @@ School ownership claims workflow, owner self-service profile dashboard, and prof
 
 ---
 
+## Phase 11 — Public UI Redesign ✅ COMPLETE
+
+### Goal
+Replace the Flowbite-based public UI with a custom, token-driven design system on Laravel Blade + Alpine.js + Tailwind v4, and fix data/rendering bugs across public pages.
+
+### Progress
+
+| # | Task | Status | Notes |
+|---|------|--------|-------|
+| 11.1 | Design tokens (CSS vars) | ✅ Done | color, radius, shadow, spacing, type scales in `resources/css/app.css` |
+| 11.2 | Component library | ✅ Done | `components/ui/`: btn, card, badge, chip, stat-tile, search-shell, fact-grid, eb-table, icon-tile |
+| 11.3 | Transparent→frosted nav on scroll | ✅ Done | Alpine `@scroll` window listener toggles class |
+| 11.4 | Hero search autocomplete | ✅ Done | Debounced, keyboard nav, wired to `/api/search/autocomplete` |
+| 11.5 | Institute card component | ✅ Done | `ui/institute-card`, reused on listing/profile/compare |
+| 11.6 | Filter sidebar | ✅ Done | Chip groups + Tom Select District multi-select; Alpine state → hidden inputs |
+| 11.7 | Profile depth | ✅ Done | Admission badges, facilities by group, contact/map, gallery (empty states) |
+| 11.8 | Browse by Division & Category aligned | ✅ Done | One card style; published-aware counts |
+| 11.9 | Comparison UI | ✅ Done | Collapsible groups, diff-highlight, hide-identical, per-fee lines |
+| 11.10 | Deleted `.docs/design.md` | ✅ Done | Spec fully implemented then removed |
+
+### Bug Fixes Applied
+- `Category` route-model binding resolved explicitly by slug (`firstOrFail`) — implicit binding silently failed under Herd/php-fpm (OPcache/class issue)
+- Scoped `orWhereHas` inside the `published()` filter in `TaxonomyPublicController::category`
+- `Division`/`District`/`Upazila` slug resolution in `LocationPublicController`
+- `Category` & `Division` gained `publishedInstitutes()` relations; homepage counts use published
+- `ComparisonService` contact rows read `contact_type`/`contact_value`; fees list all `FeeStructure` rows per line
+- Removed strict CSP from `SecurityHeaders` middleware (nonce reverted)
+
+### Validation
+- `npm run build` clean ✅
+- All public routes return 200; category pages render correct institute counts (general 6, islamic 7, technical 8, madrasa 6, english-medium 5) ✅
+
+---
+
 ## Database State
 
 | Type | Count |
@@ -282,5 +316,17 @@ School ownership claims workflow, owner self-service profile dashboard, and prof
 - **Testing:** SQLite in-memory via phpunit.xml — always `php artisan test` with no flags
 - **Redis cache keys:** `module:resource:identifier:variant` convention
 - **JSON-LD:** Build via PHP array + `json_encode()`, never raw Blade `@` directives
+- **Public UI:** Custom component library under `resources/views/components/ui/` (Blade + Alpine + Tailwind v4); `design.md` spec implemented then deleted
+
+### Relevant Files (Redesign)
+- `resources/css/app.css` — design tokens + component styles
+- `resources/js/app.js` — Alpine + Tom Select + lucide
+- `resources/views/components/ui/` — btn, card, badge, chip, stat-tile, search-shell, fact-grid, eb-table, icon-tile, institute-card
+- `resources/views/welcome.blade.php` — Browse by Division & Category
+- `resources/views/public/institutes/{index,show}.blade.php` — filters + profile depth
+- `resources/views/public/compare/index.blade.php` — collapsible comparison
+- `app/Modules/Taxonomy/Http/Controllers/TaxonomyPublicController.php` — explicit slug resolve
+- `app/Modules/Taxonomy/Models/Category.php`, `app/Modules/Location/Models/Division.php` — `getRouteKeyName()` + `publishedInstitutes()`
+- `app/Modules/Comparison/Services/ComparisonService.php` — contact/fee fixes
 
 ---

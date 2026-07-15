@@ -35,7 +35,8 @@ ssh signalstack << 'EOF'
 
   echo "Running post-deploy tasks inside container..."
   docker exec edubase_app php artisan key:generate --force || true
-  docker exec edubase_app php artisan migrate:fresh --seed --force
+  docker exec edubase_app php artisan migrate --force
+  docker exec edubase_app php artisan db:seed --force
 
   echo "Restarting cloudflared tunnel to apply hostname mapping..."
   sudo systemctl restart cloudflared || true

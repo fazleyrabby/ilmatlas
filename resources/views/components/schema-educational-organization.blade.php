@@ -29,10 +29,10 @@
             $address['streetAddress'] = $institute->full_address;
         }
         if ($institute->district) {
-            $address['addressLocality'] = $institute->district->name;
+            $address['addressLocality'] = is_array($institute->district) ? ($institute->district['name'] ?? '') : $institute->district->name;
         }
         if ($institute->division) {
-            $address['addressRegion'] = $institute->division->name;
+            $address['addressRegion'] = is_array($institute->division) ? ($institute->division['name'] ?? '') : $institute->division->name;
         }
 
         $address['addressCountry'] = 'BD';
@@ -48,16 +48,24 @@
         ];
     }
 
-    if ($institute->contacts->isNotEmpty()) {
-        $data['telephone'] = $institute->contacts->first()->phone;
+    $contacts = $institute->contacts instanceof \Illuminate\Support\Collection ? $institute->contacts : collect($institute->contacts);
+    $socialLinks = $institute->socialLinks instanceof \Illuminate\Support\Collection ? $institute->socialLinks : collect($institute->socialLinks);
+
+    if ($contacts->isNotEmpty()) {
+        $firstContact = $contacts->first();
+        $data['telephone'] = is_array($firstContact) ? ($firstContact['phone'] ?? '') : ($firstContact->phone ?? '');
     }
 
-    if ($institute->contacts->isNotEmpty() && $institute->contacts->first()->email) {
-        $data['email'] = $institute->contacts->first()->email;
+    if ($contacts->isNotEmpty()) {
+        $firstContact = $contacts->first();
+        $email = is_array($firstContact) ? ($firstContact['email'] ?? '') : ($firstContact->email ?? '');
+        if ($email) {
+            $data['email'] = $email;
+        }
     }
 
-    if ($institute->socialLinks->isNotEmpty()) {
-        $data['sameAs'] = $institute->socialLinks->pluck('url')->all();
+    if ($socialLinks->isNotEmpty()) {
+        $data['sameAs'] = $socialLinks->map(fn($link) => is_array($link) ? ($link['url'] ?? '') : ($link->url ?? ''))->filter()->all();
     }
 @endphp
 

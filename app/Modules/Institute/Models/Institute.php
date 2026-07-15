@@ -295,15 +295,17 @@ class Institute extends Model
                 $this->loadMissing('fees');
 
                 $totalMonthly = 0.00;
-                $activeFees = $this->fees->where('moderation_status', 'approved')->where('is_published', true);
+                $feesColl = $this->fees instanceof \Illuminate\Support\Collection ? $this->fees : collect($this->fees);
+                $activeFees = $feesColl->where('moderation_status', 'approved')->where('is_published', true);
 
                 if ($activeFees->isEmpty()) {
                     return 0.00;
                 }
 
                 foreach ($activeFees as $fee) {
-                    $multiplier = config("edubase.fees.frequency_multipliers.{$fee->frequency}", 1);
-                    $monthlyAmount = ($fee->amount * $multiplier) / 12;
+                    $feeObj = is_array($fee) ? (object)$fee : $fee;
+                    $multiplier = config("edubase.fees.frequency_multipliers.{$feeObj->frequency}", 1);
+                    $monthlyAmount = ($feeObj->amount * $multiplier) / 12;
                     $totalMonthly += $monthlyAmount;
                 }
 

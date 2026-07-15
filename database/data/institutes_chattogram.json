@@ -333,5 +333,95 @@
       "admission-fee": { "amount": 15000, "frequency": "one_time" },
       "session-fee": { "amount": 10000, "frequency": "yearly" }
     }
+  },
+  {
+    "name": "Al Hidayah International School",
+    "short_name": "AHIS",
+    "institute_code": "139411",
+    "type": "school",
+    "category": "english-medium",
+    "curriculum": "cambridge-international",
+    "board": "chattogram-board",
+    "gender": "co_educational",
+    "religious_orientation": "islamic",
+    "established_year": 2015,
+    "division": "Chattogram",
+    "district": "Chattogram",
+    "upazila": "Kotwali",
+    "full_address": "Jamal Khan, Kotwali, Chattogram",
+    "latitude": 22.3491,
+    "longitude": 91.8365,
+    "source_url": "http://alhidayah-school.com",
+    "verification_status": "verified",
+    "programs": ["playgroup", "nursery", "class-1", "class-5", "class-9", "class-10-ssc"],
+    "facilities": ["library", "computer-lab", "science-lab", "playground"],
+    "contacts": [
+      { "type": "phone", "value": "+8801819123456" }
+    ],
+    "fees": {
+      "monthly-tuition": { "amount": 6000, "frequency": "monthly" },
+      "admission-fee": { "amount": 15000, "frequency": "one_time" },
+      "session-fee": { "amount": 8000, "frequency": "yearly" }
+    }
+  },
+  {
+    "name": "Al Maghrib International School",
+    "short_name": "AMIS",
+    "institute_code": "139412",
+    "type": "school",
+    "category": "english-medium",
+    "curriculum": "cambridge-international",
+    "board": "chattogram-board",
+    "gender": "co_educational",
+    "religious_orientation": "islamic",
+    "established_year": 2018,
+    "division": "Chattogram",
+    "district": "Chattogram",
+    "upazila": "Panchlaish",
+    "full_address": "Nasirabad, Panchlaish, Chattogram",
+    "latitude": 22.3622,
+    "longitude": 91.8241,
+    "source_url": "http://almaghrib-school.com",
+    "verification_status": "verified",
+    "programs": ["playgroup", "nursery", "class-1", "class-5", "class-9", "class-10-ssc"],
+    "facilities": ["library", "computer-lab", "playground"],
+    "contacts": [
+      { "type": "phone", "value": "+8801719654321" }
+    ],
+    "fees": {
+      "monthly-tuition": { "amount": 7500, "frequency": "monthly" },
+      "admission-fee": { "amount": 18000, "frequency": "one_time" },
+      "session-fee": { "amount": 9000, "frequency": "yearly" }
+    }
+  },
+  {
+    "name": "Al Burooj International School",
+    "short_name": "ABIS",
+    "institute_code": "139413",
+    "type": "school",
+    "category": "english-medium",
+    "curriculum": "cambridge-international",
+    "board": "chattogram-board",
+    "gender": "co_educational",
+    "religious_orientation": "islamic",
+    "established_year": 2016,
+    "division": "Chattogram",
+    "district": "Chattogram",
+    "upazila": "Khulshi",
+    "full_address": "Zakaria Road, Khulshi, Chattogram",
+    "latitude": 22.3789,
+    "longitude": 91.8105,
+    "source_url": "http://alburooj-school.com",
+    "verification_status": "verified",
+    "programs": ["playgroup", "nursery", "class-1", "class-5", "class-9", "class-10-ssc"],
+    "facilities": ["library", "computer-lab", "science-lab", "playground"],
+    "contacts": [
+      { "type": "phone", "value": "+8801919112233" }
+    ],
+    "fees": {
+      "monthly-tuition": { "amount": 5500, "frequency": "monthly" },
+      "admission-fee": { "amount": 14000, "frequency": "one_time" },
+      "session-fee": { "amount": 7500, "frequency": "yearly" }
+    }
   }
 ]

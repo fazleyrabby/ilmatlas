@@ -56,7 +56,8 @@ class AppServiceProvider extends ServiceProvider
         );
 
         Blade::directive('nonce', function () {
-            return 'nonce="<?php echo app(\'csp-nonce\'); ?>"';
+            $nonce = app()->bound('csp-nonce') ? app('csp-nonce') : base64_encode(random_bytes(16));
+            return 'nonce="'.$nonce.'"';
         });
     }
 }

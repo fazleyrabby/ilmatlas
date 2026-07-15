@@ -15,25 +15,30 @@ class ComparisonController extends Controller
         private ComparisonService $comparison,
     ) {}
 
-    public function show(Request $request, string $slugs): View
+    public function show(Request $request, ?string $slugs = null): View
     {
-        $slugList = $this->comparison->parseSlug($slugs);
-        $institutes = Institute::published()->whereIn('slug', $slugList)->get();
+        $matrix = null;
+        if ($slugs) {
+            $slugList = $this->comparison->parseSlug($slugs);
+            $institutes = Institute::published()->whereIn('slug', $slugList)->get();
 
-        if ($institutes->count() < 2) {
-            abort(404, 'At least 2 institutes are required for comparison.');
+            if ($institutes->count() >= 2) {
+                $typeIds = $institutes->pluck('institute_type_id')->unique();
+                if ($typeIds->count() > 1) {
+                    abort(400, 'Mismatched institution types. You can only compare institutions of the same type.');
+                }
+                $matrix = $this->comparison->getComparison($institutes->pluck('uuid')->toArray());
+            }
         }
 
-        $typeIds = $institutes->pluck('institute_type_id')->unique();
-        if ($typeIds->count() > 1) {
-            abort(400, 'Mismatched institution types. You can only compare institutions of the same type (e.g., comparing school with school, college with college).');
+        if (!$matrix) {
+            // Build an empty/dummy matrix structure to avoid breaking blade rendering
+            $matrix = new \App\Modules\Comparison\DTOs\ComparisonMatrix([], []);
         }
-
-        $matrix = $this->comparison->getComparison($institutes->pluck('uuid')->toArray());
 
         return view('public.compare.index', [
             'matrix' => $matrix,
-            'slug' => $slugs,
+            'slug' => $slugs ?? '',
         ]);
     }
 

@@ -62,14 +62,17 @@
                 </button>
 
                 @auth
-                    <a href="{{ route('dashboard') }}" class="btn btn-ghost btn-sm hidden sm:inline-flex">Dashboard</a>
+                    @if(auth()->user()->hasRole('admin'))
+                        <a href="{{ route('admin.dashboard') }}" class="btn btn-ghost btn-sm hidden sm:inline-flex">Dashboard</a>
+                    @else
+                        <a href="{{ route('dashboard') }}" class="btn btn-ghost btn-sm hidden sm:inline-flex">Dashboard</a>
+                    @endif
                     <form method="POST" action="{{ route('logout') }}" class="hidden sm:inline">
                         @csrf
                         <button type="submit" class="btn btn-ghost btn-sm">Logout</button>
                     </form>
                 @else
                     <a href="{{ route('login') }}" class="btn btn-ghost btn-sm hidden sm:inline-flex">Login</a>
-                    <a href="{{ route('register') }}" class="btn btn-primary btn-sm hidden sm:inline-flex">Register</a>
                 @endauth
 
                 <button type="button" class="btn btn-ghost btn-icon md:hidden" @click="open = !open" aria-label="Menu">
@@ -86,11 +89,14 @@
                 <a href="{{ route('about') }}" class="rounded-md px-3 py-2 text-sm font-medium text-text-secondary hover:bg-surface-muted">About</a>
                 <div class="my-2 border-t border-divider"></div>
                 @auth
-                    <a href="{{ route('dashboard') }}" class="rounded-md px-3 py-2 text-sm font-medium text-text-secondary hover:bg-surface-muted">Dashboard</a>
+                    @if(auth()->user()->hasRole('admin'))
+                        <a href="{{ route('admin.dashboard') }}" class="rounded-md px-3 py-2 text-sm font-medium text-text-secondary hover:bg-surface-muted">Dashboard</a>
+                    @else
+                        <a href="{{ route('dashboard') }}" class="rounded-md px-3 py-2 text-sm font-medium text-text-secondary hover:bg-surface-muted">Dashboard</a>
+                    @endif
                     <form method="POST" action="{{ route('logout') }}">@csrf<button type="submit" class="w-full rounded-md px-3 py-2 text-left text-sm font-medium text-danger">Logout</button></form>
                 @else
                     <a href="{{ route('login') }}" class="rounded-md px-3 py-2 text-sm font-medium text-text-secondary hover:bg-surface-muted">Login</a>
-                    <a href="{{ route('register') }}" class="btn btn-primary btn-sm mt-1">Register</a>
                 @endauth
             </nav>
         </div>

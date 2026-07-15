@@ -13,6 +13,7 @@ use App\Modules\Taxonomy\Models\InstituteType;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class InstitutePublicController extends Controller
@@ -24,12 +25,15 @@ class InstitutePublicController extends Controller
             $paginator = Institute::published()
                 ->with(['type', 'district', 'upazila', 'primaryCategory'])
                 ->when($request->type, fn ($q, $t) => $q->whereHas('type', fn ($sq) => $sq->where('slug', $t)))
-                ->when(\Illuminate\Support\Arr::wrap($request->district), fn ($q, $d) => $q->whereIn('district_id', $d))
+                ->when(\Illuminate\Support\Arr::wrap($request->district), function ($q, $d) {
+                    $ids = \App\Modules\Location\Models\District::whereIn('slug', $d)->pluck('id')->toArray();
+                    return $q->whereIn('district_id', $ids);
+                })
                 ->when(\Illuminate\Support\Arr::wrap($request->category), fn ($q, $c) => $q->whereHas('categories', fn ($sq) => $sq->whereIn('slug', $c)))
                 ->when(\Illuminate\Support\Arr::wrap($request->curriculum), fn ($q, $c) => $q->whereHas('curriculums', fn ($sq) => $sq->whereIn('slug', $c)))
                 ->when($request->gender, fn ($q, $g) => $q->where('gender', $g))
                 ->latest('published_at')
-                ->paginate(20);
+                ->paginate(50);
 
             $items = collect($paginator->items())->map(function ($item) {
                 $arr = $item->toArray();

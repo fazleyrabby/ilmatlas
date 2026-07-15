@@ -44,12 +44,16 @@
                     <p class="mt-1 text-text-muted">{{ $institute->short_name }}</p>
                 @endif
                 <div class="mt-3 flex flex-wrap gap-2">
-                    @if($institute->type)<span class="badge badge-primary">{{ $institute->type->name }}</span>@endif
+                    @if($institute->type)
+                        <span class="badge badge-primary">{{ is_array($institute->type) ? ($institute->type['name'] ?? '') : $institute->type->name }}</span>
+                    @endif
                     @if($institute->gender)<span class="badge badge-neutral capitalize">{{ $institute->gender }}</span>@endif
                     @if($institute->religious_orientation && $institute->religious_orientation !== 'not_applicable')
                         <span class="badge badge-neutral capitalize">{{ $institute->religious_orientation }}</span>
                     @endif
-                    @if($institute->district)<span class="badge badge-neutral"><i data-lucide="map-pin"></i> {{ $institute->district->name }}</span>@endif
+                    @if($institute->district)
+                        <span class="badge badge-neutral"><i data-lucide="map-pin"></i> {{ is_array($institute->district) ? ($institute->district['name'] ?? '') : $institute->district->name }}</span>
+                    @endif
                 </div>
                 <div class="mt-5 flex flex-wrap gap-2">
                     <button
@@ -81,10 +85,10 @@
                 <div class="fact"><div class="fact-label">Gender</div><div class="fact-value capitalize">{{ $institute->gender }}</div></div>
             @endif
             @if($institute->type)
-                <div class="fact"><div class="fact-label">Type</div><div class="fact-value">{{ $institute->type->name }}</div></div>
+                <div class="fact"><div class="fact-label">Type</div><div class="fact-value">{{ is_array($institute->type) ? ($institute->type['name'] ?? '') : $institute->type->name }}</div></div>
             @endif
             @if($institute->division)
-                <div class="fact"><div class="fact-label">Division</div><div class="fact-value">{{ $institute->division->name }}</div></div>
+                <div class="fact"><div class="fact-label">Division</div><div class="fact-value">{{ is_array($institute->division) ? ($institute->division['name'] ?? '') : $institute->division->name }}</div></div>
             @endif
             <div class="fact"><div class="fact-label">Est. Monthly Fee</div><div class="fact-value tabular-nums">{{ $institute->estimated_monthly_fee > 0 ? '৳'.number_format($institute->estimated_monthly_fee, 0) : '—' }}</div></div>
         </div>
@@ -125,7 +129,11 @@
             @endif
 
             @php
-                $gallery = $institute->media->filter(fn ($m) => in_array($m->media_type, ['image', 'photo', 'campus', 'gallery']) || Str::startsWith($m->mime_type ?? '', 'image/'));
+                $mediaColl = $institute->media instanceof \Illuminate\Support\Collection ? $institute->media : collect($institute->media);
+                $gallery = $mediaColl->filter(function($m) {
+                    $mediaObj = is_array($m) ? (object)$m : $m;
+                    return in_array($mediaObj->media_type ?? '', ['image', 'photo', 'campus', 'gallery']) || \Illuminate\Support\Str::startsWith($mediaObj->mime_type ?? '', 'image/');
+                });
             @endphp
             <div class="card p-6">
                 <div class="mb-4 flex items-center gap-2">
@@ -135,9 +143,12 @@
                 @if($gallery->isNotEmpty())
                     <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
                         @foreach($gallery as $media)
-                            <a href="{{ Storage::disk($media->disk)->url($media->file_path) }}" target="_blank" rel="noopener"
+                            @php
+                                $mObj = is_array($media) ? (object)$media : $media;
+                            @endphp
+                            <a href="{{ Storage::disk($mObj->disk)->url($mObj->file_path) }}" target="_blank" rel="noopener"
                                class="group block overflow-hidden rounded-lg border border-divider aspect-[4/3] bg-surface-muted">
-                                <img src="{{ Storage::disk($media->disk)->url($media->file_path) }}" alt="{{ $media->file_name ?? $institute->name }}"
+                                <img src="{{ Storage::disk($mObj->disk)->url($mObj->file_path) }}" alt="{{ $mObj->file_name ?? $institute->name }}"
                                      class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105">
                             </a>
                         @endforeach
@@ -153,17 +164,22 @@
 
             <div class="card p-6">
                 <h2 class="text-lg font-semibold text-text-primary mb-3">Curriculums & Programs</h2>
-                @if($institute->curriculums->isNotEmpty())
+                @php
+                    $curriculumsColl = $institute->curriculums instanceof \Illuminate\Support\Collection ? $institute->curriculums : collect($institute->curriculums);
+                    $programsColl = $institute->programs instanceof \Illuminate\Support\Collection ? $institute->programs : collect($institute->programs);
+                @endphp
+                @if($curriculumsColl->isNotEmpty())
                     <div class="flex flex-wrap gap-2 mb-4">
-                        @foreach($institute->curriculums as $c)
-                            <span class="badge badge-success">{{ $c->name }}</span>
+                        @foreach($curriculumsColl as $c)
+                            @php $cObj = is_array($c) ? (object)$c : $c; @endphp
+                            <span class="badge badge-success">{{ $cObj->name }}</span>
                         @endforeach
                     </div>
                 @endif
-                @if($institute->programs->isNotEmpty())
+                @if($programsColl->isNotEmpty())
                     <div class="text-sm text-text-secondary">
                         <strong>Programs:</strong>
-                        {{ $institute->programs->pluck('name')->implode(', ') }}
+                        {{ $programsColl->map(fn($p) => is_array($p) ? ($p['name'] ?? '') : ($p->name ?? ''))->filter()->implode(', ') }}
                     </div>
                 @endif
             </div>
@@ -179,13 +195,18 @@
                     <div class="pointer-events-none absolute inset-0 opacity-60" style="background-image: radial-gradient(var(--color-border) 1px, transparent 1px); background-size: 18px 18px;"></div>
                     <div class="relative flex flex-col items-center gap-1 text-center">
                         <i data-lucide="map" class="h-7 w-7 text-primary-600"></i>
-                        <p class="text-sm font-medium text-text-primary">{{ $institute->district?->name }}@if($institute->upazila), {{ $institute->upazila->name }}@endif</p>
+                        <p class="text-sm font-medium text-text-primary">
+                            {{ is_array($institute->district) ? ($institute->district['name'] ?? '') : ($institute->district->name ?? '') }}
+                            @if($institute->upazila)
+                                , {{ is_array($institute->upazila) ? ($institute->upazila['name'] ?? '') : ($institute->upazila->name ?? '') }}
+                            @endif
+                        </p>
                         @if($institute->latitude && $institute->longitude)
                             <a href="https://www.google.com/maps?q={{ $institute->latitude }},{{ $institute->longitude }}" target="_blank" rel="noopener" class="btn btn-secondary btn-sm mt-1">
                                 <i data-lucide="navigation"></i> View on Map
                             </a>
                         @else
-                            <a href="https://www.google.com/maps/search/?api=1&query={{ urlencode($institute->name . ', ' . ($institute->district?->name ?? '')) }}" target="_blank" rel="noopener" class="btn btn-secondary btn-sm mt-1">
+                            <a href="https://www.google.com/maps/search/?api=1&query={{ urlencode($institute->name . ', ' . (is_array($institute->district) ? ($institute->district['name'] ?? '') : ($institute->district->name ?? ''))) }}" target="_blank" rel="noopener" class="btn btn-secondary btn-sm mt-1">
                                 <i data-lucide="navigation"></i> View on Map
                             </a>
                         @endif
@@ -199,15 +220,15 @@
                     </div>
                     <div>
                         <dt class="text-text-muted">Area</dt>
-                        <dd class="text-text-primary">{{ $institute->area?->name }}, {{ $institute->upazila?->name }}</dd>
+                        <dd class="text-text-primary">{{ is_array($institute->area) ? ($institute->area['name'] ?? 'N/A') : ($institute->area->name ?? 'N/A') }}, {{ is_array($institute->upazila) ? ($institute->upazila['name'] ?? 'N/A') : ($institute->upazila->name ?? 'N/A') }}</dd>
                     </div>
                     <div>
                         <dt class="text-text-muted">District</dt>
-                        <dd class="text-text-primary">{{ $institute->district?->name }}</dd>
+                        <dd class="text-text-primary">{{ is_array($institute->district) ? ($institute->district['name'] ?? 'N/A') : ($institute->district->name ?? 'N/A') }}</dd>
                     </div>
                     <div>
                         <dt class="text-text-muted">Division</dt>
-                        <dd class="text-text-primary">{{ $institute->division?->name }}</dd>
+                        <dd class="text-text-primary">{{ is_array($institute->division) ? ($institute->division['name'] ?? 'N/A') : ($institute->division->name ?? 'N/A') }}</dd>
                     </div>
                     @if($institute->established_year)
                         <div>
@@ -223,14 +244,20 @@
                     @endif
                 </dl>
 
-                @if($institute->contacts->isNotEmpty())
+                @php
+                    $contactsColl = $institute->contacts instanceof \Illuminate\Support\Collection ? $institute->contacts : collect($institute->contacts);
+                @endphp
+                @if($contactsColl->isNotEmpty())
                     <div class="mt-4 pt-4 border-t border-divider">
                         <h3 class="text-sm font-medium text-text-primary mb-2">Contacts</h3>
-                        @foreach($institute->contacts as $contact)
+                        @foreach($contactsColl as $contact)
+                            @php
+                                $cObj = is_array($contact) ? (object)$contact : $contact;
+                            @endphp
                             <div class="flex items-center gap-2 text-sm text-text-secondary">
                                 <i data-lucide="phone" class="h-4 w-4 text-text-muted"></i>
-                                <span class="capitalize font-medium text-text-primary">{{ $contact->contact_type }}:</span>
-                                {{ $contact->contact_value }}
+                                <span class="capitalize font-medium text-text-primary">{{ $cObj->contact_type }}:</span>
+                                {{ $cObj->contact_value }}
                             </div>
                         @endforeach
                     </div>
@@ -316,16 +343,22 @@
         <div class="space-y-6">
             <div class="card p-6">
                 <h2 class="text-lg font-semibold text-text-primary mb-3">Fee Information</h2>
-                @if($institute->fees->isNotEmpty())
+                @php
+                    $feesColl = $institute->fees instanceof \Illuminate\Support\Collection ? $institute->fees : collect($institute->fees);
+                @endphp
+                @if($feesColl->isNotEmpty())
                     <div class="mb-4 rounded-md bg-primary-50 p-4 ring-1 ring-primary-100">
                         <p class="text-3xl font-bold text-primary-700 tabular-nums">{{ number_format($institute->estimated_monthly_fee, 0) }}</p>
                         <p class="text-sm text-primary-600">BDT / month (estimated)</p>
                     </div>
                     <div class="space-y-2 text-sm">
-                        @foreach($institute->fees->take(5) as $fee)
+                        @foreach($feesColl->take(5) as $fee)
+                            @php
+                                $feeObj = is_array($fee) ? (object)$fee : $fee;
+                            @endphp
                             <div class="flex justify-between">
-                                <span class="text-text-secondary">{{ $fee->feeType?->name ?? 'Fee' }}</span>
-                                <span class="text-text-primary font-medium">{{ number_format($fee->amount, 0) }} BDT</span>
+                                <span class="text-text-secondary">{{ is_array($feeObj->feeType) ? ($feeObj->feeType['name'] ?? 'Fee') : ($feeObj->feeType->name ?? 'Fee') }}</span>
+                                <span class="text-text-primary font-medium">{{ number_format($feeObj->amount, 0) }} BDT</span>
                             </div>
                         @endforeach
                     </div>
@@ -390,11 +423,15 @@
                     <span class="icon-tile icon-tile-success"><i data-lucide="calendar-clock"></i></span>
                     <h2 class="text-lg font-semibold text-text-primary">Admission</h2>
                 </div>
-                @if($institute->admissionCirculars->isNotEmpty())
+                @php
+                    $admissionsColl = $institute->admissionCirculars instanceof \Illuminate\Support\Collection ? $institute->admissionCirculars : collect($institute->admissionCirculars);
+                @endphp
+                @if($admissionsColl->isNotEmpty())
                     <div class="space-y-3">
-                        @foreach($institute->admissionCirculars as $circular)
+                        @foreach($admissionsColl as $circular)
                             @php
-                                $status = $circular->admission_status;
+                                $cObj = is_array($circular) ? (object)$circular : $circular;
+                                $status = $cObj->admission_status;
                                 $statusClass = match($status) {
                                     'open' => 'badge-success', 'ongoing' => 'badge-success',
                                     'upcoming' => 'badge-warning', 'closed' => 'badge-danger',
@@ -403,14 +440,14 @@
                             @endphp
                             <div class="rounded-lg border border-divider bg-surface-muted p-4">
                                 <div class="flex items-center justify-between gap-3">
-                                    <p class="font-semibold text-text-primary">{{ $circular->title ?? 'Admission ' . ucfirst($status) }}</p>
+                                    <p class="font-semibold text-text-primary">{{ $cObj->title ?? 'Admission ' . ucfirst($status) }}</p>
                                     <span class="badge {{ $statusClass }} capitalize">{{ str_replace('_', ' ', $status) }}</span>
                                 </div>
-                                @if($circular->application_start_date)
+                                @if($cObj->application_start_date)
                                     <p class="mt-2 flex items-center gap-1.5 text-sm text-text-secondary">
                                         <i data-lucide="calendar" class="h-4 w-4 text-text-muted"></i>
-                                        {{ $circular->application_start_date->format('M d, Y') }}
-                                        @if($circular->application_end_date) – {{ $circular->application_end_date->format('M d, Y') }}@endif
+                                        {{ is_string($cObj->application_start_date) ? date('M d, Y', strtotime($cObj->application_start_date)) : $cObj->application_start_date->format('M d, Y') }}
+                                        @if($cObj->application_end_date) – {{ is_string($cObj->application_end_date) ? date('M d, Y', strtotime($cObj->application_end_date)) : $cObj->application_end_date->format('M d, Y') }}@endif
                                     </p>
                                 @endif
                                 <div class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-text-muted">
@@ -436,9 +473,19 @@
                     <span class="icon-tile icon-tile-brand"><i data-lucide="building-2"></i></span>
                     <h2 class="text-lg font-semibold text-text-primary">Facilities</h2>
                 </div>
-                @if($institute->facilities->isNotEmpty())
+                @php
+                    $facilitiesColl = $institute->facilities instanceof \Illuminate\Support\Collection ? $institute->facilities : collect($institute->facilities);
+                @endphp
+                @if($facilitiesColl->isNotEmpty())
                     @php
-                        $grouped = $institute->facilities->groupBy(fn ($f) => $f->group?->name ?? 'Other');
+                        $grouped = $facilitiesColl->groupBy(function($f) {
+                            $fObj = is_array($f) ? (object)$f : $f;
+                            // Safe property fetch on relation group
+                            if (isset($fObj->group)) {
+                                return is_array($fObj->group) ? ($fObj->group['name'] ?? 'Other') : ($fObj->group->name ?? 'Other');
+                            }
+                            return 'Other';
+                        });
                     @endphp
                     <div class="space-y-4">
                         @foreach($grouped as $groupName => $facilities)
@@ -446,9 +493,10 @@
                                 <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-text-muted">{{ $groupName }}</p>
                                 <div class="flex flex-wrap gap-2">
                                     @foreach($facilities as $facility)
+                                        @php $fObj = is_array($facility) ? (object)$facility : $facility; @endphp
                                         <span class="chip">
-                                            @if($facility->icon)<i data-lucide="{{ $facility->icon }}" class="h-3.5 w-3.5"></i>@endif
-                                            {{ $facility->name }}
+                                            @if($fObj->icon)<i data-lucide="{{ $fObj->icon }}" class="h-3.5 w-3.5"></i>@endif
+                                            {{ $fObj->name }}
                                         </span>
                                     @endforeach
                                 </div>

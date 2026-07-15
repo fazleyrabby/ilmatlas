@@ -8,7 +8,7 @@
         <h1 class="text-2xl font-bold text-gray-900 mb-2">Welcome Back</h1>
         <p class="text-sm text-gray-500 mb-6">Log in to manage your favorites, saved comparisons, and alerts.</p>
 
-        <form method="POST" action="{{ route('login') }}" class="space-y-4">
+        <form id="loginForm" method="POST" action="{{ route('login') }}" class="space-y-4">
             @csrf
 
             <div>
@@ -39,7 +39,7 @@
             </button>
 
             <button type="button"
-                onclick="document.getElementById('email').value='admin@edubase.com'; document.getElementById('password').value='password'; this.form.submit();"
+                onclick="document.getElementById('email').value='admin@edubase.com'; document.getElementById('password').value='password'; document.getElementById('loginForm').submit();"
                 class="w-full mt-2 bg-gray-100 hover:bg-gray-200 text-gray-800 py-2.5 px-4 rounded-lg text-sm font-medium transition duration-150">
                 Quick Demo Admin Login
             </button>

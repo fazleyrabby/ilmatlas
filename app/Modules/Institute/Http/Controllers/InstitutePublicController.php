@@ -3,6 +3,7 @@
 namespace App\Modules\Institute\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\Fee\Models\FeeType;
 use App\Modules\Institute\Models\Institute;
 use App\Modules\Location\Models\District;
 use App\Modules\SEO\Services\SeoService;
@@ -139,8 +140,18 @@ class InstitutePublicController extends Controller
 
         $meta = $seo->forInstitute($institute);
 
+        $reviews = $institute->reviews()
+            ->where('moderation_status', 'approved')
+            ->with('user')
+            ->latest()
+            ->get();
+
+        $feeTypes = Cache::remember('taxonomy:fee-types:all', 86400, fn () => FeeType::all());
+
         return view('public.institutes.show', [
             'institute' => $institute,
+            'reviews' => $reviews,
+            'feeTypes' => $feeTypes,
             'seo' => $meta,
         ]);
     }

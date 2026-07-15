@@ -207,6 +207,21 @@ User registration, bookmarks/favorites, saved comparisons, and email alert subsc
 
 ---
 
+## Phase 9 — Reviews & Community ✅ COMPLETE
+
+### Goal
+Star ratings, user reviews, review moderation queue, and community fee submissions.
+
+### Progress
+
+| # | Task | Status | Notes |
+|---|------|--------|-------|
+| 9.1 | Star ratings and reviews | ✅ Done | Submission of 1-5 star ratings and reviews on public profiles, displaying averages |
+| 9.2 | Review moderation | ✅ Done | Review moderation controller and queue in admin dashboard |
+| 9.3 | Community fee submissions | ✅ Done | Community-reported fee structures routed directly into main fee moderation queue |
+
+---
+
 ## Database State
 
 | Type | Count |

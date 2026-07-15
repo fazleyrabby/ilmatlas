@@ -1,9 +1,10 @@
 <?php
 
 use App\Modules\Institute\Http\Controllers\Admin\InstituteController;
+use App\Modules\Institute\Http\Controllers\Admin\ReviewModerationController;
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
+Route::prefix('admin')->middleware(['web', 'auth', 'admin'])->group(function () {
     Route::resource('institutes', InstituteController::class)
         ->only(['index', 'create', 'store', 'edit', 'update'])
         ->names([
@@ -22,4 +23,12 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
         ->name('admin.institutes.bulk-publish');
     Route::post('institutes/bulk/archive', [InstituteController::class, 'bulkArchive'])
         ->name('admin.institutes.bulk-archive');
+
+    // Review Moderation Queue
+    Route::get('reviews', [ReviewModerationController::class, 'index'])
+        ->name('admin.reviews.index');
+    Route::post('reviews/{review}/approve', [ReviewModerationController::class, 'approve'])
+        ->name('admin.reviews.approve');
+    Route::post('reviews/{review}/reject', [ReviewModerationController::class, 'reject'])
+        ->name('admin.reviews.reject');
 });

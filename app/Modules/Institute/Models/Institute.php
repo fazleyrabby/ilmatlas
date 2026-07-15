@@ -189,6 +189,11 @@ class Institute extends Model
         return $this->hasMany(ScraperSource::class);
     }
 
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
+    }
+
     public function seoMetadata(): MorphOne
     {
         return $this->morphOne(SeoMetadata::class, 'seoable');

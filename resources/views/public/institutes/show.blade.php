@@ -126,6 +126,81 @@
                     </div>
                 @endif
             </div>
+
+            <!-- Reviews & Ratings Section -->
+            <div class="bg-white rounded-xl border border-gray-200 p-6 space-y-6">
+                <div class="flex items-center justify-between border-b border-gray-100 pb-4">
+                    <h2 class="text-xl font-bold text-gray-900">Reviews & Ratings</h2>
+                    <div class="flex items-center gap-1.5">
+                        <span class="text-sm font-semibold text-gray-900">Avg Rating:</span>
+                        <span class="px-2 py-0.5 bg-yellow-100 text-yellow-800 rounded font-bold text-sm">
+                            {{ number_format($reviews->avg('rating') ?? 0, 1) }} / 5.0
+                        </span>
+                        <span class="text-xs text-gray-500">({{ $reviews->count() }} reviews)</span>
+                    </div>
+                </div>
+
+                @if(session('success'))
+                    <div class="p-4 bg-green-50 text-green-700 rounded-lg border border-green-200 text-sm">
+                        {{ session('success') }}
+                    </div>
+                @endif
+
+                <!-- Reviews List -->
+                <div class="space-y-4">
+                    @forelse($reviews as $rev)
+                        <div class="p-4 bg-gray-50 rounded-xl space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span class="font-medium text-sm text-gray-900">{{ $rev->user?->name }}</span>
+                                <div class="flex items-center gap-1">
+                                    @for($i = 1; $i <= 5; $i++)
+                                        <svg class="w-4 h-4 {{ $i <= $rev->rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300' }}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                                    @endfor
+                                </div>
+                            </div>
+                            <p class="text-sm text-gray-600 leading-relaxed">{{ $rev->comment }}</p>
+                            <span class="text-xs text-gray-400 block">{{ $rev->created_at->diffForHumans() }}</span>
+                        </div>
+                    @empty
+                        <p class="text-sm text-gray-500 py-4 text-center">No reviews have been written yet. Be the first to share your experience!</p>
+                    @endforelse
+                </div>
+
+                <!-- Submit Review Form -->
+                <div class="border-t border-gray-100 pt-6">
+                    @auth
+                        <h3 class="text-lg font-bold text-gray-900 mb-3">Write a Review</h3>
+                        <form method="POST" action="{{ route('institutes.reviews.store', $institute) }}" class="space-y-4">
+                            @csrf
+                            <div>
+                                <label for="rating" class="block text-sm font-medium text-gray-700 mb-1">Rating</label>
+                                <select id="rating" name="rating" required class="rounded-lg border-gray-300 shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                    <option value="5">5 Stars (Excellent)</option>
+                                    <option value="4">4 Stars (Good)</option>
+                                    <option value="3">3 Stars (Average)</option>
+                                    <option value="2">2 Stars (Poor)</option>
+                                    <option value="1">1 Star (Very Bad)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="comment" class="block text-sm font-medium text-gray-700 mb-1">Review Comment</label>
+                                <textarea id="comment" name="comment" rows="4" required placeholder="Describe your experience with this school (curriculum, teachers, environment)..."
+                                          class="w-full rounded-lg border-gray-300 shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500"></textarea>
+                                @error('comment')
+                                    <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
+                            <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition">
+                                Submit Review
+                            </button>
+                        </form>
+                    @else
+                        <div class="p-4 bg-gray-50 border rounded-lg text-center">
+                            <p class="text-sm text-gray-600">Please <a href="{{ route('login') }}" class="text-indigo-600 hover:underline font-semibold">log in</a> to write a review for this institute.</p>
+                        </div>
+                    @endauth
+                </div>
+            </div>
         </div>
 
         <div class="space-y-6">
@@ -147,6 +222,57 @@
                 @else
                     <p class="text-sm text-gray-500">Fee information not available</p>
                 @endif
+            </div>
+
+            <!-- Community Fee Contribution -->
+            <div class="bg-white rounded-xl border border-gray-200 p-6 space-y-4">
+                <h3 class="font-bold text-gray-900 text-base">Contribute Fee Info</h3>
+                <p class="text-xs text-gray-500">Know the fees for this school? Submit them to help the community.</p>
+                
+                @auth
+                    <form method="POST" action="{{ route('institutes.fees.submit', $institute) }}" class="space-y-3">
+                        @csrf
+                        <div>
+                            <label for="fee_type_id" class="block text-xs font-medium text-gray-700 mb-0.5">Fee Type</label>
+                            <select id="fee_type_id" name="fee_type_id" required class="w-full rounded-lg border-gray-300 shadow-sm text-xs focus:border-indigo-500 focus:ring-indigo-500">
+                                @foreach($feeTypes as $type)
+                                    <option value="{{ $type->id }}">{{ $type->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
+                            <label for="academic_session" class="block text-xs font-medium text-gray-700 mb-0.5">Academic Session</label>
+                            <input type="text" id="academic_session" name="academic_session" required placeholder="e.g. 2026"
+                                   class="w-full rounded-lg border-gray-300 shadow-sm text-xs focus:border-indigo-500 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label for="amount" class="block text-xs font-medium text-gray-700 mb-0.5">Amount (BDT)</label>
+                            <input type="number" id="amount" name="amount" required min="0" placeholder="e.g. 4500"
+                                   class="w-full rounded-lg border-gray-300 shadow-sm text-xs focus:border-indigo-500 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label for="frequency" class="block text-xs font-medium text-gray-700 mb-0.5">Frequency</label>
+                            <select id="frequency" name="frequency" required class="w-full rounded-lg border-gray-300 shadow-sm text-xs focus:border-indigo-500 focus:ring-indigo-500">
+                                <option value="monthly">Monthly</option>
+                                <option value="yearly">Yearly</option>
+                                <option value="one_time">One Time</option>
+                                <option value="quarterly">Quarterly</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="notes" class="block text-xs font-medium text-gray-700 mb-0.5">Source Notes / Link</label>
+                            <textarea id="notes" name="notes" rows="2" placeholder="Where did you find this? e.g. official admission catalog"
+                                      class="w-full rounded-lg border-gray-300 shadow-sm text-xs focus:border-indigo-500 focus:ring-indigo-500"></textarea>
+                        </div>
+                        <button type="submit" class="w-full py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium text-xs rounded-lg transition">
+                            Submit Fee Details
+                        </button>
+                    </form>
+                @else
+                    <p class="text-xs text-gray-500 bg-gray-50 p-3 rounded-lg border border-gray-100 text-center">
+                        Please <a href="{{ route('login') }}" class="text-indigo-600 font-semibold hover:underline">log in</a> to contribute fee structures.
+                    </p>
+                @endauth
             </div>
 
             <div class="bg-white rounded-xl border border-gray-200 p-6">

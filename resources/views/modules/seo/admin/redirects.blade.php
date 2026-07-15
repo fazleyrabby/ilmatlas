@@ -6,10 +6,6 @@
 <div class="p-6">
     <h1 class="text-2xl font-bold mb-6">Redirects</h1>
 
-    @if (session('success'))
-        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">{{ session('success') }}</div>
-    @endif
-
     <form method="POST" action="{{ route('admin.seo.redirects.store') }}" class="bg-white rounded-lg shadow p-6 mb-8">
         @csrf
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">

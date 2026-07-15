@@ -56,7 +56,11 @@
             @foreach($fees as $fee)
                 <tr class="text-sm @if($fee->moderation_status === 'pending_review') bg-amber-50 @endif">
                     <td class="px-6 py-4">
-                        <a href="{{ route('admin.institutes.edit', $fee->institute) }}" class="text-indigo-600 hover:underline font-medium">{{ $fee->institute?->name }}</a>
+                        @if($fee->institute)
+                            <a href="{{ route('admin.institutes.edit', $fee->institute) }}" class="text-indigo-600 hover:underline font-medium">{{ $fee->institute->name }}</a>
+                        @else
+                            <span class="text-gray-400">—</span>
+                        @endif
                     </td>
                     <td class="px-6 py-4 text-gray-600">{{ $fee->feeType?->name }}</td>
                     <td class="px-6 py-4 font-medium text-gray-900">{{ number_format($fee->amount, 0) }} {{ $fee->currency }}</td>

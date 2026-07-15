@@ -23,6 +23,11 @@ class Division extends Model
         ];
     }
 
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
     public function country(): BelongsTo
     {
         return $this->belongsTo(Country::class);
@@ -36,5 +41,10 @@ class Division extends Model
     public function institutes(): HasMany
     {
         return $this->hasMany(Institute::class);
+    }
+
+    public function publishedInstitutes(): HasMany
+    {
+        return $this->hasMany(Institute::class)->where('status', 'published');
     }
 }

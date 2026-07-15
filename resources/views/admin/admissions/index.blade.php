@@ -45,7 +45,11 @@
             @forelse($circulars as $circular)
                 <tr class="text-sm">
                     <td class="px-6 py-4">
-                        <a href="{{ route('admin.institutes.edit', $circular->institute) }}" class="text-indigo-600 hover:underline font-medium">{{ $circular->institute?->name }}</a>
+                        @if($circular->institute)
+                            <a href="{{ route('admin.institutes.edit', $circular->institute) }}" class="text-indigo-600 hover:underline font-medium">{{ $circular->institute->name }}</a>
+                        @else
+                            <span class="text-gray-400">—</span>
+                        @endif
                     </td>
                     <td class="px-6 py-4 text-gray-600 max-w-xs truncate">{{ $circular->title ?? '—' }}</td>
                     <td class="px-6 py-4 text-gray-500">{{ $circular->session?->name ?? '—' }}</td>

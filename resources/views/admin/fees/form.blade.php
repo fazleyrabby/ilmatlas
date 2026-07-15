@@ -78,6 +78,7 @@
     </div>
 
     <div class="flex items-center gap-2">
+        <input type="hidden" name="is_negotiable" value="0">
         <input type="checkbox" name="is_negotiable" value="1" id="is_negotiable" class="rounded border-gray-300" @checked(old('is_negotiable', $fee->is_negotiable))>
         <label for="is_negotiable" class="text-sm text-gray-700">Negotiable</label>
     </div>

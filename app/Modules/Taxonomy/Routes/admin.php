@@ -4,7 +4,7 @@ use App\Modules\Taxonomy\Http\Controllers\Admin\CategoryController;
 use App\Modules\Taxonomy\Http\Controllers\Admin\TaxonomyController;
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
+Route::prefix('admin')->middleware(['web', 'auth', 'admin'])->group(function () {
     Route::get('taxonomies', [TaxonomyController::class, 'index'])->name('admin.taxonomies.index');
 
     Route::post('taxonomies/types', [TaxonomyController::class, 'createType'])->name('admin.taxonomies.types.store');

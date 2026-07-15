@@ -4,7 +4,7 @@ use App\Modules\User\Http\Controllers\Admin\DashboardController;
 use App\Modules\User\Http\Controllers\Admin\LoginController;
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('admin')->group(function () {
+Route::prefix('admin')->middleware('web')->group(function () {
     Route::get('login', [LoginController::class, 'create'])->name('admin.login');
     Route::post('login', [LoginController::class, 'store'])->name('admin.login.store');
 

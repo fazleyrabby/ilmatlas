@@ -22,7 +22,7 @@ class FeeStructureController extends Controller
 
     public function index(Request $request): View
     {
-        $query = FeeStructure::with(['institute:id,name,slug', 'feeType:id,name'])
+        $query = FeeStructure::with(['institute:id,uuid,name,slug', 'feeType:id,name'])
             ->when($request->institute_id, fn ($q, $v) => $q->where('institute_id', $v))
             ->when($request->moderation_status, fn ($q, $v) => $q->where('moderation_status', $v))
             ->when($request->fee_type_id, fn ($q, $v) => $q->where('fee_type_id', $v))
@@ -104,7 +104,11 @@ class FeeStructureController extends Controller
             'grade_range_end' => 'nullable|string|max:50',
         ]);
 
-        $fee->update($data);
+        $fee->update([
+            ...$data,
+            'grade_range_start' => $data['grade_range_start'] ?? 'all',
+            'grade_range_end' => $data['grade_range_end'] ?? 'all',
+        ]);
 
         return redirect()->route('admin.fees.index')
             ->with('success', 'Fee record updated.');

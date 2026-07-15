@@ -19,10 +19,20 @@ class DatabaseSeeder extends Seeder
             InstituteSeeder::class,
         ]);
 
-        User::factory()->create([
-            'name' => 'Super Admin',
-            'email' => 'admin@edubase.com',
-            'password' => bcrypt('password'),
-        ])->assignRole('super_admin');
+        $roles = [
+            'super_admin' => 'Super Admin',
+            'admin' => 'Admin',
+            'editor' => 'Editor',
+            'moderator' => 'Moderator',
+            'data_operator' => 'Data Operator',
+            'analyst' => 'Analyst',
+        ];
+
+        foreach ($roles as $role => $name) {
+            User::factory()->create([
+                'name' => $name,
+                'email' => "{$role}@edubase.com",
+            ])->assignRole($role);
+        }
     }
 }

@@ -9,11 +9,14 @@ use Illuminate\View\View;
 
 class TaxonomyPublicController extends Controller
 {
-    public function category(Category $category): View
+    public function category($category): View
     {
+        $category = Category::where('slug', $category)->firstOrFail();
+
         $institutes = Institute::published()
-            ->where('primary_category_id', $category->id)
-            ->orWhereHas('categories', fn ($q) => $q->where('category_id', $category->id))
+            ->where(fn ($q) => $q
+                ->where('primary_category_id', $category->id)
+                ->orWhereHas('categories', fn ($q2) => $q2->where('category_id', $category->id)))
             ->with(['type', 'district'])
             ->latest('published_at')
             ->paginate(20);

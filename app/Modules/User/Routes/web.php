@@ -19,7 +19,7 @@ Route::middleware('web')->group(function () {
     });
 
     // Authenticated User Routes
-    Route::middleware('auth')->group(function () {
+    Route::middleware(['auth', 'not_admin'])->group(function () {
         Route::post('logout', [LoginController::class, 'logout'])->name('logout');
 
         Route::get('dashboard', [DashboardController::class, 'show'])->name('dashboard');

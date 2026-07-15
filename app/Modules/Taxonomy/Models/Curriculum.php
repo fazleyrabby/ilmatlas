@@ -2,7 +2,9 @@
 
 namespace App\Modules\Taxonomy\Models;
 
+use App\Modules\Institute\Models\Institute;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Curriculum extends Model
 {
@@ -13,5 +15,10 @@ class Curriculum extends Model
     protected function casts(): array
     {
         return ['is_active' => 'boolean'];
+    }
+
+    public function institutes(): BelongsToMany
+    {
+        return $this->belongsToMany(Institute::class, 'institute_curriculums');
     }
 }

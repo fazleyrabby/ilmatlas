@@ -3,31 +3,31 @@
 @section('title', "$division->name Division — EduBase")
 
 @section('content')
-<div class="max-w-7xl mx-auto px-4 py-8">
-    <div class="mb-8">
-        <a href="{{ route('institutes.index') }}" class="text-sm text-indigo-600 hover:text-indigo-800">&larr; All Institutes</a>
+<div class="container-page py-8">
+    <div class="mb-6">
+        <a href="{{ route('institutes.index') }}" class="inline-flex items-center gap-1 text-sm font-medium text-primary-700 hover:text-primary-800">
+            <i data-lucide="arrow-left" class="h-4 w-4"></i> All Institutes
+        </a>
     </div>
 
-    <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ $division->name }} Division</h1>
-    <p class="text-gray-500 mb-8">{{ $institutes->total() }} institutes in this division</p>
+    <span class="text-eyebrow">Division</span>
+    <h1 class="section-title mt-1 mb-2">{{ $division->name }} Division</h1>
+    <p class="text-text-secondary mb-8">{{ number_format($institutes->total()) }} institutes in this division</p>
 
     @if($districts->isNotEmpty())
-        <div class="mb-8">
-            <h2 class="text-lg font-semibold text-gray-900 mb-3">Districts</h2>
+        <div class="mb-10">
+            <h2 class="mb-3 text-sm font-semibold text-text-primary">Districts</h2>
             <div class="flex flex-wrap gap-2">
                 @foreach($districts as $district)
-                    <a href="{{ route('locations.district', $district->slug) }}" class="px-4 py-2 bg-gray-100 rounded-lg text-sm text-gray-700 hover:bg-indigo-100 hover:text-indigo-700">{{ $district->name }}</a>
+                    <a href="{{ route('locations.district', $district->slug) }}" class="chip">{{ $district->name }}</a>
                 @endforeach
             </div>
         </div>
     @endif
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         @foreach($institutes as $institute)
-            <a href="{{ route('institutes.show', $institute->uuid) }}" class="block bg-white rounded-xl border border-gray-200 p-6 hover:shadow-md transition-shadow">
-                <h3 class="font-semibold text-gray-900">{{ $institute->name }}</h3>
-                <p class="text-sm text-gray-500 mt-1">{{ $institute->type?->name }} &middot; {{ $institute->district?->name }}</p>
-            </a>
+            <x-ui.institute-card :institute="$institute" />
         @endforeach
     </div>
 

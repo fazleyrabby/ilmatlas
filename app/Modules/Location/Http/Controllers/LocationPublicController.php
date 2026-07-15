@@ -12,8 +12,9 @@ use Illuminate\View\View;
 
 class LocationPublicController extends Controller
 {
-    public function division(Division $division): View
+    public function division(string $division): View
     {
+        $division = Division::where('slug', $division)->firstOrFail();
         $division->loadMissing('districts');
 
         $districts = $division->districts()
@@ -29,8 +30,9 @@ class LocationPublicController extends Controller
         return view('public.locations.division', compact('division', 'districts', 'institutes'));
     }
 
-    public function district(District $district): View
+    public function district(string $district): View
     {
+        $district = District::where('slug', $district)->firstOrFail();
         $district->loadMissing('division');
 
         $upazilas = $district->upazilas()
@@ -46,8 +48,9 @@ class LocationPublicController extends Controller
         return view('public.locations.district', compact('district', 'upazilas', 'institutes'));
     }
 
-    public function upazila(Upazila $upazila): View
+    public function upazila(string $upazila): View
     {
+        $upazila = Upazila::where('slug', $upazila)->firstOrFail();
         $upazila->loadMissing('district.division');
 
         $institutes = Institute::published()

@@ -4,7 +4,7 @@ use App\Modules\Scraper\Http\Controllers\Admin\ScraperRunController;
 use App\Modules\Scraper\Http\Controllers\Admin\ScraperSourceController;
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
+Route::prefix('admin')->middleware(['web', 'auth', 'admin'])->group(function () {
     Route::get('scrapers/sources', [ScraperSourceController::class, 'index'])->name('admin.scrapers.sources.index');
     Route::get('scrapers/sources/create', [ScraperSourceController::class, 'create'])->name('admin.scrapers.sources.create');
     Route::post('scrapers/sources', [ScraperSourceController::class, 'store'])->name('admin.scrapers.sources.store');

@@ -22,16 +22,11 @@ class InstitutePublicController extends Controller
         $cacheKey = 'institutes:listing:'.md5(serialize($request->all()));
         $cachedData = Cache::remember($cacheKey, 300, function () use ($request) {
             $paginator = Institute::published()
-                ->select([
-                    'id', 'uuid', 'name', 'slug', 'institute_type_id',
-                    'district_id', 'upazila_id', 'estimated_monthly_fee',
-                    'verification_status', 'status', 'published_at',
-                ])
                 ->with(['type', 'district', 'upazila', 'primaryCategory'])
                 ->when($request->type, fn ($q, $t) => $q->whereHas('type', fn ($sq) => $sq->where('slug', $t)))
-                ->when($request->district, fn ($q, $d) => $q->where('district_id', $d))
-                ->when($request->category, fn ($q, $c) => $q->whereHas('categories', fn ($sq) => $sq->where('slug', $c)))
-                ->when($request->curriculum, fn ($q, $c) => $q->whereHas('curriculums', fn ($sq) => $sq->where('slug', $c)))
+                ->when(\Illuminate\Support\Arr::wrap($request->district), fn ($q, $d) => $q->whereIn('district_id', $d))
+                ->when(\Illuminate\Support\Arr::wrap($request->category), fn ($q, $c) => $q->whereHas('categories', fn ($sq) => $sq->whereIn('slug', $c)))
+                ->when(\Illuminate\Support\Arr::wrap($request->curriculum), fn ($q, $c) => $q->whereHas('curriculums', fn ($sq) => $sq->whereIn('slug', $c)))
                 ->when($request->gender, fn ($q, $g) => $q->where('gender', $g))
                 ->latest('published_at')
                 ->paginate(20);
@@ -55,9 +50,10 @@ class InstitutePublicController extends Controller
             ]
         );
 
-        $types = Cache::remember('taxonomy:types:all', 86400, fn () => InstituteType::all());
-        $categories = Cache::remember('taxonomy:categories:active', 86400, fn () => Category::where('is_active', true)->get());
-        $curriculums = Cache::remember('taxonomy:curriculums:active', 86400, fn () => Curriculum::where('is_active', true)->get());
+        $types = InstituteType::all();
+        $categories = Category::where('is_active', true)->get();
+        $curriculums = Curriculum::where('is_active', true)->get();
+        $districts = District::orderBy('name')->get();
 
         $meta = $seo->forLocation('Institute', 'All', $institutes->total(), 'educational institutes');
 
@@ -66,6 +62,7 @@ class InstitutePublicController extends Controller
             'types' => $types,
             'categories' => $categories,
             'curriculums' => $curriculums,
+            'districts' => $districts,
             'seo' => $meta,
         ]);
     }
@@ -78,17 +75,20 @@ class InstitutePublicController extends Controller
             ->latest('published_at')
             ->paginate(20);
 
+        $districts = District::orderBy('name')->get();
+
         $meta = $seo->forLocation('Institute', $type->name, $institutes->total(), "{$type->name}s");
 
-        $types = Cache::remember('taxonomy:types:all', 86400, fn () => InstituteType::all());
-        $categories = Cache::remember('taxonomy:categories:active', 86400, fn () => Category::where('is_active', true)->get());
-        $curriculums = Cache::remember('taxonomy:curriculums:active', 86400, fn () => Curriculum::where('is_active', true)->get());
+        $types = InstituteType::all();
+        $categories = Category::where('is_active', true)->get();
+        $curriculums = Curriculum::where('is_active', true)->get();
 
         return view('public.institutes.index', [
             'institutes' => $institutes,
             'types' => $types,
             'categories' => $categories,
             'curriculums' => $curriculums,
+            'districts' => $districts,
             'seo' => $meta,
             'currentType' => $type,
         ]);
@@ -104,15 +104,17 @@ class InstitutePublicController extends Controller
 
         $meta = $seo->forLocation('Institute', $district->name, $institutes->total(), "institutes in {$district->name}");
 
-        $types = Cache::remember('taxonomy:types:all', 86400, fn () => InstituteType::all());
-        $categories = Cache::remember('taxonomy:categories:active', 86400, fn () => Category::where('is_active', true)->get());
-        $curriculums = Cache::remember('taxonomy:curriculums:active', 86400, fn () => Curriculum::where('is_active', true)->get());
+        $types = InstituteType::all();
+        $categories = Category::where('is_active', true)->get();
+        $curriculums = Curriculum::where('is_active', true)->get();
+        $districts = District::orderBy('name')->get();
 
         return view('public.institutes.index', [
             'institutes' => $institutes,
             'types' => $types,
             'categories' => $categories,
             'curriculums' => $curriculums,
+            'districts' => $districts,
             'seo' => $meta,
             'currentDistrict' => $district,
         ]);
@@ -129,15 +131,17 @@ class InstitutePublicController extends Controller
 
         $meta = $seo->forPSEO($district->name, $type->slug, "{$type->name}s", $institutes->total());
 
-        $types = Cache::remember('taxonomy:types:all', 86400, fn () => InstituteType::all());
-        $categories = Cache::remember('taxonomy:categories:active', 86400, fn () => Category::where('is_active', true)->get());
-        $curriculums = Cache::remember('taxonomy:curriculums:active', 86400, fn () => Curriculum::where('is_active', true)->get());
+        $types = InstituteType::all();
+        $categories = Category::where('is_active', true)->get();
+        $curriculums = Curriculum::where('is_active', true)->get();
+        $districts = District::orderBy('name')->get();
 
         return view('public.institutes.index', [
             'institutes' => $institutes,
             'types' => $types,
             'categories' => $categories,
             'curriculums' => $curriculums,
+            'districts' => $districts,
             'seo' => $meta,
             'currentType' => $type,
             'currentDistrict' => $district,

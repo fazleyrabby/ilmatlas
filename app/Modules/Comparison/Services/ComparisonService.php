@@ -42,7 +42,6 @@ class ComparisonService
                     'type', 'primaryCategory', 'division', 'district', 'upazila',
                     'curriculums', 'boards', 'programs',
                     'fees' => fn ($q) => $q->where('is_published', true),
-                    'feeType',
                     'facilities',
                     'contacts',
                     'socialLinks',
@@ -117,10 +116,27 @@ class ComparisonService
     private function buildFeeGroup(array $institutes): ?ComparisonGroup
     {
         $rows = [
-            new ComparisonRow('Estimated Monthly Fee', 'estimated_monthly_fee', array_map(
-                fn ($i) => $i->estimated_monthly_fee > 0 ? '৳ '.number_format($i->estimated_monthly_fee, 0) : 'N/A',
-                $institutes
-            )),
+            new ComparisonRow('Fees', 'fees', array_map(function ($i) {
+                if ($i->fees->isEmpty()) {
+                    return $i->estimated_monthly_fee > 0
+                        ? '৳ '.number_format($i->estimated_monthly_fee, 0).' / month (est.)'
+                        : 'N/A';
+                }
+
+                return $i->fees
+                    ->map(function ($fee) {
+                        $label = $fee->feeType?->name ?? 'Fee';
+                        $amount = '৳ '.number_format($fee->amount, 0);
+                        $freq = match ($fee->frequency) {
+                            'monthly' => '/mo', 'yearly' => '/yr',
+                            'quarterly' => '/qtr', 'one_time' => ' (one-time)',
+                            default => '',
+                        };
+
+                        return $label.': '.$amount.$freq;
+                    })
+                    ->implode('<br>');
+            }, $institutes)),
         ];
 
         return new ComparisonGroup('Fees', 'fees', $this->markIdentical($rows));
@@ -142,11 +158,13 @@ class ComparisonService
     {
         $rows = [
             new ComparisonRow('Phone', 'phone', array_map(
-                fn ($i) => $i->contacts->first()?->phone ?? 'N/A',
+                fn ($i) => $i->contacts->firstWhere('contact_type', 'phone')?->contact_value
+                    ?? $i->contacts->firstWhere('contact_type', 'mobile')?->contact_value
+                    ?? 'N/A',
                 $institutes
             )),
             new ComparisonRow('Email', 'email', array_map(
-                fn ($i) => $i->contacts->first()?->email ?? 'N/A',
+                fn ($i) => $i->contacts->firstWhere('contact_type', 'email')?->contact_value ?? 'N/A',
                 $institutes
             )),
             new ComparisonRow('Address', 'address', array_map(

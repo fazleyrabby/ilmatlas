@@ -24,21 +24,26 @@ class SecurityHeaders
         $response->headers->set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
         $connectSrc = "connect-src 'self' https:";
         if (app()->environment('local')) {
-            $connectSrc .= ' ws://localhost:* ws://127.0.0.1:* ws://[::1]:5173 wss://localhost:* wss://127.0.0.1:* wss://[::1]:5173';
+            $connectSrc .= ' ws://localhost:* ws://127.0.0.1:* wss://localhost:* wss://127.0.0.1:*';
         }
 
-        $response->headers->set('Content-Security-Policy',
-            "default-src 'self'; ".
-            "script-src 'self' 'nonce-{$nonce}' 'strict-dynamic' https://cdn.jsdelivr.net; ".
-            "style-src 'self' 'nonce-{$nonce}' https://fonts.googleapis.com; ".
-            "font-src 'self' https://fonts.gstatic.com; ".
-            "img-src 'self' data: https:; ".
-            $connectSrc.'; '.
-            "frame-src 'none'; ".
-            "object-src 'none'; ".
-            "base-uri 'self'; ".
-            "form-action 'self';"
-        );
+        // Skip strict CSP when debugging so framework error/debug pages
+        // (Ignition) — which rely on inline styles/scripts — render correctly.
+        if (! config('app.debug')) {
+            $response->headers->set('Content-Security-Policy',
+                "default-src 'self'; ".
+                "script-src 'self' 'nonce-{$nonce}' 'strict-dynamic' https://cdn.jsdelivr.net; ".
+                "style-src 'self' 'nonce-{$nonce}' https://fonts.googleapis.com; ".
+                "font-src 'self' https://fonts.gstatic.com; ".
+                "img-src 'self' data: https:; ".
+                "media-src 'self'; ".
+                $connectSrc.'; '.
+                "frame-src 'none'; ".
+                "object-src 'none'; ".
+                "base-uri 'self'; ".
+                "form-action 'self';"
+            );
+        }
 
         return $response;
     }

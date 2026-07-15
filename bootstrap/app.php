@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\AdminAccess;
+use App\Http\Middleware\NotAdmin;
 use App\Http\Middleware\SecurityHeaders;
 use App\Modules\SEO\Http\Middleware\RedirectMiddleware;
 use Illuminate\Foundation\Application;
@@ -23,6 +24,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'admin' => AdminAccess::class,
+            'not_admin' => NotAdmin::class,
         ]);
 
         $middleware->prependToGroup('web', RedirectMiddleware::class);

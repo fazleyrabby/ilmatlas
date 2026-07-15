@@ -10,12 +10,6 @@
     </div>
 </div>
 
-@if(session('success'))
-    <div class="mb-6 p-4 bg-green-50 text-green-700 rounded-lg border border-green-200 text-sm">
-        {{ session('success') }}
-    </div>
-@endif
-
 <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
     <table class="w-full">
         <thead>

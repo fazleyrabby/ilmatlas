@@ -3,7 +3,7 @@
 use App\Modules\Admission\Http\Controllers\Admin\AdmissionCircularController;
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
+Route::prefix('admin')->middleware(['web', 'auth', 'admin'])->group(function () {
     Route::get('admissions', [AdmissionCircularController::class, 'index'])->name('admin.admissions.index');
     Route::get('admissions/create', [AdmissionCircularController::class, 'create'])->name('admin.admissions.create');
     Route::post('admissions', [AdmissionCircularController::class, 'store'])->name('admin.admissions.store');

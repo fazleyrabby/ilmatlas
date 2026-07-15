@@ -4,7 +4,7 @@ use App\Modules\Fee\Http\Controllers\Admin\FeeStructureController;
 use App\Modules\Fee\Http\Controllers\Admin\FeeTypeController;
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
+Route::prefix('admin')->middleware(['web', 'auth', 'admin'])->group(function () {
     Route::get('fees/types', [FeeTypeController::class, 'index'])->name('admin.fees.types.index');
     Route::post('fees/types', [FeeTypeController::class, 'store'])->name('admin.fees.types.store');
     Route::put('fees/types/{type}', [FeeTypeController::class, 'update'])->name('admin.fees.types.update');

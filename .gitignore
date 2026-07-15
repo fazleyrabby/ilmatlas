@@ -26,4 +26,7 @@ Homestead.json
 Homestead.yaml
 /.docs/prd.md
 /.docs/memory.md
+# Keep only doc.md tracked; ignore everything else in .docs/
+/.docs/*
+!/.docs/doc.md
 Thumbs.db

@@ -8,6 +8,7 @@ use App\Modules\Taxonomy\Models\Curriculum;
 use App\Modules\Taxonomy\Models\InstituteType;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class TaxonomyController extends Controller
@@ -29,7 +30,7 @@ class TaxonomyController extends Controller
             'description' => 'nullable|string|max:1000',
         ]);
 
-        InstituteType::create($data);
+        InstituteType::create(['uuid' => (string) Str::uuid(), ...$data]);
 
         return redirect()->route('admin.taxonomies.index')->with('success', 'Institute type created.');
     }

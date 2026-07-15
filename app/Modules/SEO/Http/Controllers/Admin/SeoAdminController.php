@@ -9,6 +9,7 @@ use App\Modules\SEO\Models\Redirect;
 use App\Modules\SEO\Models\SeoMetadata;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Str;
 
 class SeoAdminController extends Controller
 {
@@ -57,7 +58,7 @@ class SeoAdminController extends Controller
 
         $data['noindex'] = request()->boolean('noindex');
 
-        $meta = $entity->seoMetadata ?? $entity->seoMetadata()->create([]);
+        $meta = $entity->seoMetadata ?? $entity->seoMetadata()->create(['uuid' => (string) Str::uuid()]);
         $meta->update($data);
 
         return redirect()->back()->with('success', 'SEO metadata updated successfully.');

@@ -12,6 +12,17 @@ class FeeModerationService
 {
     public function approve(FeeStructure $fee, User $moderator): FeeStructure
     {
+        FeeStructure::where('id', '!=', $fee->id)
+            ->where('institute_id', $fee->institute_id)
+            ->where('fee_type_id', $fee->fee_type_id)
+            ->where('academic_session', $fee->academic_session)
+            ->where('grade_range_start', $fee->grade_range_start)
+            ->where('moderation_status', 'approved')
+            ->update([
+                'moderation_status' => 'superseded',
+                'is_published' => false,
+            ]);
+
         $fee->update([
             'moderation_status' => 'approved',
             'verified_by' => $moderator->id,

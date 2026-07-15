@@ -23,27 +23,74 @@
 
     <link rel="canonical" href="@yield('canonical_url', url()->current())">
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Spectral:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,200;1,300;1,400;1,500;1,600;1,700;1,800&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('styles')
 
     <x-schema-website />
 </head>
-<body class="font-sans antialiased text-gray-900 bg-white">
-    <header class="border-b border-gray-200">
-        <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-            <a href="{{ url('/') }}" class="text-xl font-bold text-indigo-600">EduBase</a>
-            <nav class="flex items-center gap-6">
-                <a href="{{ route('institutes.index') }}" class="text-sm text-gray-600 hover:text-gray-900">Institutes</a>
-                <a href="{{ route('search') }}" class="text-sm text-gray-600 hover:text-gray-900">Search</a>
+<body class="font-sans antialiased text-text-primary bg-background @if(isset($overHero) && $overHero) has-hero @endif">
+    <header x-data="{ scrolled: false, open: false, overHero: false }"
+            @scroll.window="scrolled = window.scrollY > 8"
+            @over-hero.window="overHero = true"
+            :class="(overHero && !scrolled) ? 'is-transparent' : 'is-solid'"
+            class="site-header sticky top-0 z-40 transition-[box-shadow,background-color,border-color]">
+        <div class="container-page flex h-16 items-center justify-between gap-4">
+            <a href="{{ url('/') }}" class="flex items-center gap-2 text-xl font-bold tracking-tight text-primary-700" style="font-family: var(--font-serif);">
+                <i data-lucide="graduation-cap" class="h-6 w-6"></i>
+                EduBase
+            </a>
+
+            <nav class="hidden items-center gap-1 md:flex">
+                <a href="{{ route('institutes.index') }}" class="rounded-md px-3 py-2 text-sm font-medium text-text-secondary transition-colors hover:bg-surface-muted hover:text-text-primary">Institutes</a>
+                <a href="{{ route('search') }}" class="rounded-md px-3 py-2 text-sm font-medium text-text-secondary transition-colors hover:bg-surface-muted hover:text-text-primary">Search</a>
+                <a href="{{ route('about') }}" class="rounded-md px-3 py-2 text-sm font-medium text-text-secondary transition-colors hover:bg-surface-muted hover:text-text-primary">About</a>
+            </nav>
+
+            <div class="flex items-center gap-2">
+                <a href="{{ route('search') }}" class="btn btn-ghost btn-icon md:hidden" aria-label="Search">
+                    <i data-lucide="search"></i>
+                </a>
+                <button type="button" data-compare-indicator
+                        class="relative hidden items-center gap-2 btn btn-secondary btn-sm sm:inline-flex">
+                    <i data-lucide="git-compare"></i>
+                    <span>Compare</span>
+                    <span data-compare-count class="ml-0.5 hidden min-w-5 rounded-full bg-primary-600 px-1.5 py-0.5 text-center text-xs font-semibold text-white"></span>
+                </button>
+
                 @auth
-                    <a href="{{ route('dashboard') }}" class="text-sm text-gray-600 hover:text-gray-900">Dashboard</a>
-                    <form method="POST" action="{{ route('logout') }}" class="inline">
+                    <a href="{{ route('dashboard') }}" class="btn btn-ghost btn-sm hidden sm:inline-flex">Dashboard</a>
+                    <form method="POST" action="{{ route('logout') }}" class="hidden sm:inline">
                         @csrf
-                        <button type="submit" class="text-sm text-red-600 hover:text-red-900">Logout</button>
+                        <button type="submit" class="btn btn-ghost btn-sm">Logout</button>
                     </form>
                 @else
-                    <a href="{{ route('login') }}" class="text-sm text-gray-600 hover:text-gray-900">Login</a>
-                    <a href="{{ route('register') }}" class="text-sm text-indigo-600 hover:text-indigo-900 font-medium">Register</a>
+                    <a href="{{ route('login') }}" class="btn btn-ghost btn-sm hidden sm:inline-flex">Login</a>
+                    <a href="{{ route('register') }}" class="btn btn-primary btn-sm hidden sm:inline-flex">Register</a>
+                @endauth
+
+                <button type="button" class="btn btn-ghost btn-icon md:hidden" @click="open = !open" aria-label="Menu">
+                    <i data-lucide="menu" x-show="!open"></i>
+                    <i data-lucide="x" x-show="open" x-cloak></i>
+                </button>
+            </div>
+        </div>
+
+        <div x-show="open" x-collapse x-cloak class="border-t border-border bg-surface md:hidden">
+            <nav class="container-page flex flex-col gap-1 py-3">
+                <a href="{{ route('institutes.index') }}" class="rounded-md px-3 py-2 text-sm font-medium text-text-secondary hover:bg-surface-muted">Institutes</a>
+                <a href="{{ route('search') }}" class="rounded-md px-3 py-2 text-sm font-medium text-text-secondary hover:bg-surface-muted">Search</a>
+                <a href="{{ route('about') }}" class="rounded-md px-3 py-2 text-sm font-medium text-text-secondary hover:bg-surface-muted">About</a>
+                <div class="my-2 border-t border-divider"></div>
+                @auth
+                    <a href="{{ route('dashboard') }}" class="rounded-md px-3 py-2 text-sm font-medium text-text-secondary hover:bg-surface-muted">Dashboard</a>
+                    <form method="POST" action="{{ route('logout') }}">@csrf<button type="submit" class="w-full rounded-md px-3 py-2 text-left text-sm font-medium text-danger">Logout</button></form>
+                @else
+                    <a href="{{ route('login') }}" class="rounded-md px-3 py-2 text-sm font-medium text-text-secondary hover:bg-surface-muted">Login</a>
+                    <a href="{{ route('register') }}" class="btn btn-primary btn-sm mt-1">Register</a>
                 @endauth
             </nav>
         </div>
@@ -53,21 +100,55 @@
         @yield('content')
     </main>
 
-    <div id="compareTray" class="hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50 px-4 py-3">
-        <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
-            <div class="flex items-center gap-2 flex-wrap compare-list"></div>
-            <div class="flex items-center gap-3">
-                <button onclick="compareClear()" class="text-sm text-gray-500 hover:text-gray-700">Clear</button>
-                <button class="compare-cta px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed">
+    <div id="compareTray" class="hidden fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-surface/95 px-4 py-3 shadow-lg backdrop-blur">
+        <div class="container-page flex items-center justify-between gap-4">
+            <div class="flex flex-1 flex-wrap items-center gap-2 compare-list"></div>
+            <div class="flex flex-shrink-0 items-center gap-2">
+                <button data-clear-compare class="btn btn-ghost btn-sm">Clear</button>
+                <button class="compare-cta btn btn-primary btn-sm disabled:opacity-50 disabled:cursor-not-allowed">
+                    <i data-lucide="git-compare"></i>
                     Compare
                 </button>
             </div>
         </div>
     </div>
 
-    <footer class="border-t border-gray-200 mt-16">
-        <div class="max-w-7xl mx-auto px-4 py-8 text-sm text-gray-500">
-            &copy; {{ date('Y') }} EduBase. All rights reserved.
+    <footer class="mt-20 border-t border-border bg-surface">
+        <div class="container-page py-14">
+            <div class="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+                <div class="max-w-xs">
+                    <a href="{{ url('/') }}" class="flex items-center gap-2 text-lg font-bold text-primary-700" style="font-family: var(--font-serif);">
+                        <i data-lucide="graduation-cap" class="h-5 w-5"></i> EduBase
+                    </a>
+                    <p class="mt-3 text-sm leading-relaxed text-text-secondary">
+                        The trusted directory for discovering, comparing and researching educational institutions across Bangladesh.
+                    </p>
+                </div>
+                <div>
+                    <h4 class="text-eyebrow mb-3">Discover</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="{{ route('institutes.index') }}" class="text-text-secondary hover:text-primary-700">All Institutes</a></li>
+                        <li><a href="{{ route('search') }}" class="text-text-secondary hover:text-primary-700">Search</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-eyebrow mb-3">Company</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="{{ route('about') }}" class="text-text-secondary hover:text-primary-700">About</a></li>
+                        <li><a href="{{ route('contact') }}" class="text-text-secondary hover:text-primary-700">Contact</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-eyebrow mb-3">Legal</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="{{ route('privacy') }}" class="text-text-secondary hover:text-primary-700">Privacy</a></li>
+                        <li><a href="{{ route('terms') }}" class="text-text-secondary hover:text-primary-700">Terms</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="mt-12 border-t border-divider pt-6 text-sm text-text-muted">
+                &copy; {{ date('Y') }} EduBase. All rights reserved.
+            </div>
         </div>
     </footer>
 

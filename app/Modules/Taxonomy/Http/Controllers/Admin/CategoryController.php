@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Modules\Taxonomy\Models\Category;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class CategoryController extends Controller
@@ -37,7 +38,7 @@ class CategoryController extends Controller
             'is_active' => 'boolean',
         ]);
 
-        Category::create($data);
+        Category::create(['uuid' => (string) Str::uuid(), ...$data]);
 
         return redirect()->route('admin.taxonomies.categories.index')->with('success', 'Category created.');
     }

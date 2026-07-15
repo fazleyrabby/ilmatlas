@@ -1,13 +1,13 @@
 <script type="application/ld+json">
 {!! json_encode([
-    '@context' => 'https://schema.org',
-    '@type' => 'WebSite',
+    '@@context' => 'https://schema.org',
+    '@@type' => 'WebSite',
     'name' => 'EduBase',
     'url' => url('/'),
     'potentialAction' => [
-        '@type' => 'SearchAction',
+        '@@type' => 'SearchAction',
         'target' => [
-            '@type' => 'EntryPoint',
+            '@@type' => 'EntryPoint',
             'urlTemplate' => url('/search?q={search_term_string}'),
         ],
         'query-input' => 'required name=search_term_string',

@@ -18,7 +18,7 @@ class AdmissionCircularController extends Controller
 {
     public function index(Request $request): View
     {
-        $circulars = AdmissionCircular::with(['institute:id,name,slug', 'session:id,name'])
+        $circulars = AdmissionCircular::with(['institute:id,uuid,name,slug', 'session:id,name'])
             ->when($request->institute_id, fn ($q, $v) => $q->where('institute_id', $v))
             ->when($request->admission_status, fn ($q, $v) => $q->where('admission_status', $v))
             ->latest()

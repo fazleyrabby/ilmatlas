@@ -222,6 +222,22 @@ Star ratings, user reviews, review moderation queue, and community fee submissio
 
 ---
 
+## Phase 10 — Institute Portal ✅ COMPLETE
+
+### Goal
+School ownership claims workflow, owner self-service profile dashboard, and profile traffic analytics.
+
+### Progress
+
+| # | Task | Status | Notes |
+|---|------|--------|-------|
+| 10.1 | School claim workflow | ✅ Done | Submission of ownership claims with proof documents directly on the institute detail page |
+| 10.2 | Claims moderation queue | ✅ Done | Claims moderation queue in admin dashboard, mapping user as owner and assigning Editor role |
+| 10.3 | Self-service profile dashboard | ✅ Done | Portal dashboard (`/portal`) for verified owners to edit school motto, address, maps, and description |
+| 10.4 | Portal Analytics | ✅ Done | Analytics dashboard showcasing view counts, comparison counts, and alert watchlist count |
+
+---
+
 ## Database State
 
 | Type | Count |

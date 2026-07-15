@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Modules\Institute\Models\Institute;
+use App\Modules\Institute\Models\InstituteClaim;
 use App\Modules\User\Models\SavedComparison;
 use App\Modules\User\Models\UserAlert;
 use App\Modules\User\Models\UserFavorite;
@@ -42,5 +44,15 @@ class User extends Authenticatable
     public function alerts(): HasMany
     {
         return $this->hasMany(UserAlert::class);
+    }
+
+    public function claimedInstitutes(): HasMany
+    {
+        return $this->hasMany(Institute::class, 'owner_id');
+    }
+
+    public function claims(): HasMany
+    {
+        return $this->hasMany(InstituteClaim::class);
     }
 }

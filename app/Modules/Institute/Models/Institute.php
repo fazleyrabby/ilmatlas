@@ -47,6 +47,7 @@ class Institute extends Model
         'meta_title', 'meta_description', 'meta_keywords',
         'view_count', 'comparison_count', 'fee_record_count',
         'estimated_monthly_fee', 'logo_url', 'profile_completeness',
+        'owner_id',
     ];
 
     protected $appends = [
@@ -76,6 +77,16 @@ class Institute extends Model
     public function getRouteKeyName(): string
     {
         return 'uuid';
+    }
+
+    public function owner(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'owner_id');
+    }
+
+    public function claims(): HasMany
+    {
+        return $this->hasMany(InstituteClaim::class);
     }
 
     public function type(): BelongsTo

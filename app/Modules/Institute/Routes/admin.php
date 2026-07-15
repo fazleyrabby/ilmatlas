@@ -1,5 +1,6 @@
 <?php
 
+use App\Modules\Institute\Http\Controllers\Admin\ClaimModerationController;
 use App\Modules\Institute\Http\Controllers\Admin\InstituteController;
 use App\Modules\Institute\Http\Controllers\Admin\ReviewModerationController;
 use Illuminate\Support\Facades\Route;
@@ -31,4 +32,12 @@ Route::prefix('admin')->middleware(['web', 'auth', 'admin'])->group(function () 
         ->name('admin.reviews.approve');
     Route::post('reviews/{review}/reject', [ReviewModerationController::class, 'reject'])
         ->name('admin.reviews.reject');
+
+    // Claims Moderation Queue
+    Route::get('claims', [ClaimModerationController::class, 'index'])
+        ->name('admin.claims.index');
+    Route::post('claims/{claim}/approve', [ClaimModerationController::class, 'approve'])
+        ->name('admin.claims.approve');
+    Route::post('claims/{claim}/reject', [ClaimModerationController::class, 'reject'])
+        ->name('admin.claims.reject');
 });

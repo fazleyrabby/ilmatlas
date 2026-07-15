@@ -32,6 +32,9 @@
                 <a href="{{ route('admin.reviews.index') }}" class="block px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100">
                     Reviews Queue
                 </a>
+                <a href="{{ route('admin.claims.index') }}" class="block px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100">
+                    Claims Queue
+                </a>
                 <a href="{{ route('admin.scrapers.sources.index') }}" class="block px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100">
                     Scrapers
                 </a>
